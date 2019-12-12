@@ -1,9 +1,225 @@
-openapi: '3.0.0'
+openapi: 3.0.0
 info:
   title: Ember API
   version: '1.0'
+  description: Ember core endpoints
 servers:
-- url: http://localhost:3000
-paths: {}
+  - url: 'https://api.ember.to'
+    description: Prod
+  - url: 'http://localhost:8000'
+    description: Dev
+  - url: 'http://localhost:3100'
+    description: Mock
+paths:
+  /stops:
+    get:
+      summary: Stops
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stop'
+              examples:
+                Stops List:
+                  value:
+                    - id: 3
+                      name: Dundee
+                      stop_type: 1
+                    - id: 4
+                      name: Dundee (Greenmarket)
+                      stop_type: 2
+                    - id: 5
+                      name: Dundee West (Apollo Way)
+                      stop_type: 2
+                    - id: 6
+                      name: Inchture
+                      stop_type: 1
+                    - id: 7
+                      name: Inchture (Westbound)
+                      stop_type: 2
+                    - id: 8
+                      name: Inchture (Eastbound)
+                      stop_type: 2
+                    - id: 9
+                      name: Edinburgh
+                      stop_type: 1
+                    - id: 10
+                      name: Edinburgh (Blackhall Library)
+                      stop_type: 2
+                    - id: 11
+                      name: Edinburgh (Melville Street)
+                      stop_type: 2
+                    - id: 12
+                      name: Ferrytoll (Park and Ride)
+                      stop_type: 2
+                    - id: 13
+                      name: Kinross (Park and Ride)
+                      stop_type: 2
+                    - id: 2
+                      name: Perth (Central Car Park)
+                      stop_type: 2
+      operationId: get-stop
+      description: Get a list of possible stops
+    parameters: []
+  /search:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripSearchResult'
+              examples:
+                Dundee to Edinburgh:
+                  value:
+                    - id: 1
+                      origin:
+                        departure: '2019-12-01T06:30:00Z'
+                        stop_id: 1
+                        stop_name: Dundee (Greenmarket)
+                      destination:
+                        arrival: '2019-12-01T08:15:00Z'
+                        stop_id: 5
+                        stop_name: Edinburgh (Melville Street)
+                    - id: 1
+                      origin:
+                        departure: '2019-12-01T06:30:00Z'
+                        stop_id: 1
+                        stop_name: Dundee (Greenmarket)
+                      destination:
+                        arrival: '2019-12-01T07:59:00Z'
+                        stop_id: 4
+                        stop_name: Edinburgh (Blackhall Library)
+      operationId: get-search
+      description: This endpoint is used for finding trips that satisfy a set of conditions.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: origin
+          description: The id of the stop at the begining of the trip
+        - schema:
+            type: integer
+          in: query
+          name: destination
+          description: The id of the stop at the end of the trip
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure_time_from
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure_time_to
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival_time_from
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival_time_to
+      requestBody: {}
+    parameters: []
 components:
-  schemas: {}
+  schemas:
+    Stop:
+      title: Stop
+      type: object
+      x-examples:
+        Dundee (Greenmarket):
+          id: 1
+          name: Dundee (Greenmarket)
+          stop_type: STOP
+        Dundee West (Apollo Way):
+          id: 2
+          name: Dundee West (Apollo Way)
+          stop_type: STOP
+        Dundee:
+          id: 3
+          name: Dundee
+          stop_type: CITY
+      description: A location where vehicles pick up or drop off passengers.
+      properties:
+        id:
+          type: integer
+        '':
+          type: string
+        stop_type:
+          type: string
+          enum:
+            - STOP
+            - CITY
+      required:
+        - id
+        - ''
+        - stop_type
+    TripSearchResult:
+      title: TripSearchResult
+      type: object
+      description: The result object a client recives when searching for trips.
+      x-examples:
+        Dundee to Edinburgh:
+          id: 1367
+          origin:
+            departure: '2020-05-19T23:00:00Z'
+            stop_id: 1
+            stop_name: Dundee (Greenmarket)
+          destination:
+            arrival: '2020-05-20T00:45:00Z'
+            stop_id: 5
+            stop_name: Edinburgh (Melville Street)
+      properties:
+        id:
+          type: integer
+        origin:
+          $ref: '#/components/schemas/TripStopLocation'
+        destination:
+          $ref: '#/components/schemas/TripStopLocation'
+      required:
+        - id
+        - origin
+        - destination
+    TripStopLocation:
+      title: TripStopLocation
+      type: object
+      properties:
+        stop_id:
+          type: integer
+        stop_name:
+          type: string
+        departure:
+          type: string
+          format: date-time
+        arrival:
+          type: string
+          format: date-time
+        stop_ description:
+          type: string
+      required:
+        - stop_id
+        - stop_name
+      description: ''
+      x-examples:
+        Dundee (Greenmarket):
+          departure: '2020-05-19T23:00:00Z'
+          stop_id: 1
+          stop_name: Dundee (Greenmarket)
+        Edinburgh (Melville Street):
+          arrival: '2020-05-20T00:45:00Z'
+          stop_id: 5
+          stop_name: Edinburgh (Melville Street)
