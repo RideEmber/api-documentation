@@ -135,6 +135,23 @@ paths:
           name: arrival_time_to
       requestBody: {}
     parameters: []
+  /upload:
+    post:
+      summary: Bulk Create
+      tags: []
+      responses: {}
+      operationId: get-upload
+      description: This endpoint is for adding a number of objects to the database from a `.csv` file.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+        description: ''
 components:
   schemas:
     Stop:
@@ -157,7 +174,7 @@ components:
       properties:
         id:
           type: integer
-        '':
+        name:
           type: string
         stop_type:
           type: string
@@ -166,7 +183,7 @@ components:
             - CITY
       required:
         - id
-        - ''
+        - name
         - stop_type
     TripSearchResult:
       title: TripSearchResult
