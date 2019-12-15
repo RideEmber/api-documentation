@@ -1,0 +1,19 @@
+title: Trip
+type: object
+description: 'A trip is a sequence of two or more stops that occur during a specific time period, Usually by the same vehicle and driver.'
+properties:
+  id:
+    type: integer
+    minimum: 1
+  route:
+    type: integer
+    minimum: 1
+  stops:
+    type: array
+    minItems: 2
+    items:
+      $ref: ./stop-time.v1.yaml
+required:
+  - id
+  - route
+  - stops

@@ -1,0 +1,19 @@
+title: StopLocationAssignment
+type: object
+properties:
+  id:
+    type: integer
+    minimum: 1
+  location:
+    type: integer
+    minimum: 1
+    description: The id of a `StopLocation`
+  stop:
+    type: integer
+    minimum: 1
+    description: The id of a `Stop`
+required:
+  - id
+  - location
+  - stop
+description: 'The relation between a physical stop, i.e. an instance of `StopLocation`, and a group of stops, i.e. an instance of `Stop`.'

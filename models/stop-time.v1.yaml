@@ -1,0 +1,29 @@
+title: StopTime
+type: object
+properties:
+  id:
+    type: integer
+    minimum: 1
+  trip:
+    type: integer
+    minimum: 1
+  stop_location:
+    type: integer
+    minimum: 1
+  allow_boarding:
+    type: boolean
+  allow_drop_off:
+    type: boolean
+  arrival_time:
+    type: string
+    format: date-time
+  departure_time:
+    type: string
+    format: date-time
+required:
+  - id
+  - trip
+  - stop_location
+  - allow_boarding
+  - allow_drop_off
+description: The stops that a vehicle is scheduled to make as part of a trip.
