@@ -1,0 +1,18 @@
+title: Stop
+type: object
+properties:
+  id:
+    type: integer
+    minimum: 1
+  name:
+    type: string
+  type:
+    type: string
+    enum:
+      - CITY
+      - STOP
+required:
+  - id
+  - name
+  - type
+description: 'The abstraction of any location that can be used to pickup or drop off passengers. This includes both groups of locations, such as cities, junctions and central stations, and specific locations such as a stance.'

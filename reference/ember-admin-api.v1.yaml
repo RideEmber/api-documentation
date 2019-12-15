@@ -1,0 +1,20 @@
+openapi: 3.0.0
+info:
+  title: Admin API
+  version: '1.0'
+servers:
+  - url: 'https://api.ember.to'
+    description: Prod
+  - url: 'http://localhost:8000'
+    description: Dev
+  - url: 'http://localhost:3100'
+    description: Mock
+paths: {}
+components:
+  schemas:
+    test:
+      title: test
+      type: object
+      properties:
+        id:
+          type: string

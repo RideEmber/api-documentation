@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Ember API
+  title: Booking API
   version: '1.0'
-  description: Ember core endpoints
+  description: Ember Booking endpoints
 servers:
   - url: 'https://api.ember.to'
     description: Prod
@@ -13,8 +13,7 @@ servers:
 paths:
   /stops:
     get:
-      summary: Stops
-      tags: []
+      summary: Find Stops
       responses:
         '200':
           description: OK
@@ -23,7 +22,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Stop'
+                  $ref: ../models/stop.v1.yaml
               examples:
                 Stops List:
                   value:
@@ -63,13 +62,17 @@ paths:
                     - id: 2
                       name: Perth (Central Car Park)
                       stop_type: 2
-      operationId: get-stop
+      operationId: get-stops
       description: Get a list of possible stops
+      tags:
+        - Browse
+      parameters: []
     parameters: []
-  /search:
+  /journeys:
     get:
-      summary: Your GET endpoint
-      tags: []
+      summary: Find Journeys
+      tags:
+        - Browse
       responses:
         '200':
           description: OK
@@ -78,7 +81,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TripSearchResult'
+                  $ref: '#/components/schemas/Journey'
               examples:
                 Dundee to Edinburgh:
                   value:
@@ -100,40 +103,55 @@ paths:
                         arrival: '2019-12-01T07:59:00Z'
                         stop_id: 4
                         stop_name: Edinburgh (Blackhall Library)
-      operationId: get-search
-      description: This endpoint is used for finding trips that satisfy a set of conditions.
+      operationId: get-journeys
+      description: This endpoint is used for finding journeys that satisfy a set of conditions
       parameters:
         - schema:
             type: integer
           in: query
           name: origin
           description: The id of the stop at the begining of the trip
+          required: true
         - schema:
             type: integer
           in: query
           name: destination
           description: The id of the stop at the end of the trip
+          required: true
         - schema:
             type: string
             format: date-time
           in: query
-          name: departure_time_from
+          name: departure-time-from
         - schema:
             type: string
             format: date-time
           in: query
-          name: departure_time_to
+          name: departure-time-to
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival_time_from
+          name: arrival-time-from
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival_time_to
-      requestBody: {}
+          name: arrival-time-to
+        - schema:
+            type: integer
+            minimum: 1
+          in: query
+          name: passengers
+          description: the amount of seats requested
+          required: true
+        - schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DiscountCards'
+          in: query
+          name: discounts
+          description: 'a list of all applied discount cards, see DiscountCards under Models'
     parameters: []
   /upload:
     post:
@@ -154,39 +172,8 @@ paths:
         description: ''
 components:
   schemas:
-    Stop:
-      title: Stop
-      type: object
-      x-examples:
-        Dundee (Greenmarket):
-          id: 1
-          name: Dundee (Greenmarket)
-          stop_type: STOP
-        Dundee West (Apollo Way):
-          id: 2
-          name: Dundee West (Apollo Way)
-          stop_type: STOP
-        Dundee:
-          id: 3
-          name: Dundee
-          stop_type: CITY
-      description: A location where vehicles pick up or drop off passengers.
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        stop_type:
-          type: string
-          enum:
-            - STOP
-            - CITY
-      required:
-        - id
-        - name
-        - stop_type
-    TripSearchResult:
-      title: TripSearchResult
+    Leg:
+      title: Leg
       type: object
       description: The result object a client recives when searching for trips.
       x-examples:
@@ -201,19 +188,29 @@ components:
             stop_id: 5
             stop_name: Edinburgh (Melville Street)
       properties:
-        id:
+        trip_id:
           type: integer
         origin:
-          $ref: '#/components/schemas/TripStopLocation'
+          $ref: '#/components/schemas/JourneyStop'
         destination:
-          $ref: '#/components/schemas/TripStopLocation'
+          $ref: '#/components/schemas/JourneyStop'
       required:
-        - id
+        - trip_id
         - origin
         - destination
-    TripStopLocation:
-      title: TripStopLocation
+    JourneyStop:
+      title: JourneyStop
       type: object
+      description: ''
+      x-examples:
+        Dundee (Greenmarket):
+          departure: '2020-05-19T23:00:00Z'
+          stop_id: 1
+          stop_name: Dundee (Greenmarket)
+        Edinburgh (Melville Street):
+          arrival: '2020-05-20T00:45:00Z'
+          stop_id: 5
+          stop_name: Edinburgh (Melville Street)
       properties:
         stop_id:
           type: integer
@@ -225,18 +222,41 @@ components:
         arrival:
           type: string
           format: date-time
-        stop_ description:
+        stop_description:
           type: string
       required:
         - stop_id
         - stop_name
-      description: ''
-      x-examples:
-        Dundee (Greenmarket):
-          departure: '2020-05-19T23:00:00Z'
-          stop_id: 1
-          stop_name: Dundee (Greenmarket)
-        Edinburgh (Melville Street):
-          arrival: '2020-05-20T00:45:00Z'
-          stop_id: 5
-          stop_name: Edinburgh (Melville Street)
+    Journey:
+      title: Journey
+      type: object
+      x-tags:
+        - Models
+      properties:
+        legs:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Leg'
+        price:
+          type: number
+          minimum: 0
+        passengers:
+          type: integer
+          minimum: 1
+        discount_cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountCards'
+      required:
+        - legs
+        - price
+        - passengers
+    DiscountCards:
+      type: string
+      title: DiscountCards
+      enum:
+        - SCOT_CONCESSION
+        - SCOT_UNDER_18
+      x-tags:
+        - Models
