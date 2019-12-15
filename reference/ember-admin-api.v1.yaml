@@ -2,6 +2,7 @@ openapi: 3.0.0
 info:
   title: Admin API
   version: '1.0'
+  description: Ember admin endpoints
 servers:
   - url: 'https://api.ember.to'
     description: Prod
@@ -9,12 +10,25 @@ servers:
     description: Dev
   - url: 'http://localhost:3100'
     description: Mock
-paths: {}
-components:
-  schemas:
-    test:
-      title: test
-      type: object
-      properties:
-        id:
-          type: string
+paths:
+  /bulk:
+    post:
+      summary: Bulk Create Objects
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: post-bulk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: A `.csv` file
+              required:
+                - file
+      description: This endpoint is for adding a number of objects to the database from a `.csv` file

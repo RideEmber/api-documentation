@@ -10,6 +10,9 @@ servers:
     description: Dev
   - url: 'http://localhost:3100'
     description: Mock
+tags:
+  - name: Browse Journeys
+  - name: Internal Endpoints
 paths:
   /stops:
     get:
@@ -63,16 +66,14 @@ paths:
                       name: Perth (Central Car Park)
                       stop_type: 2
       operationId: get-stops
-      description: Get a list of possible stops
-      tags:
-        - Browse
+      description: Get a list of possible stops.
       parameters: []
+      tags:
+        - Browse Journeys
     parameters: []
   /journeys:
     get:
       summary: Find Journeys
-      tags:
-        - Browse
       responses:
         '200':
           description: OK
@@ -104,7 +105,7 @@ paths:
                         stop_id: 4
                         stop_name: Edinburgh (Blackhall Library)
       operationId: get-journeys
-      description: This endpoint is used for finding journeys that satisfy a set of conditions
+      description: This endpoint is used for finding journeys that satisfy a set of conditions along with their fare.
       parameters:
         - schema:
             type: integer
@@ -151,25 +152,93 @@ paths:
               $ref: '#/components/schemas/DiscountCards'
           in: query
           name: discounts
-          description: 'a list of all applied discount cards, see DiscountCards under Models'
+          description: 'a list of all applied discount cards, see DiscountCards under Models for reference'
+      tags:
+        - Browse Journeys
     parameters: []
-  /upload:
-    post:
-      summary: Bulk Create
-      tags: []
-      responses: {}
-      operationId: get-upload
-      description: This endpoint is for adding a number of objects to the database from a `.csv` file.
+  /legs:
+    get:
+      summary: Find Legs
+      tags:
+        - Internal Endpoints
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Leg'
+      operationId: get-Legs
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: origin
+          description: The id of the stop at the begining of the trip
+          required: true
+        - schema:
+            type: integer
+          in: query
+          name: destination
+          description: The id of the stop at the end of the trip
+          required: true
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure-time-from
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure-time-to
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-from
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-to
+      description: This endpoint is used for finding journeys that satisfy a set of conditions. It is used internally with `/prices` to create the `/journeys` endpoint.
+    parameters: []
+  /prices:
+    get:
+      summary: Get prices
+      tags:
+        - Internal Endpoints
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Journey'
+      operationId: get-prices
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
-                file:
-                  type: string
-                  format: binary
-        description: ''
+                legs:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Leg'
+                passengers:
+                  type: integer
+                  minimum: 1
+                discount_cards:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DiscountCards'
+      description: This endpoint is used for finding prices for a set of journeys. It is used internally with `/legs` to create the `/journeys` endpoint.
 components:
   schemas:
     Leg:
@@ -198,6 +267,8 @@ components:
         - trip_id
         - origin
         - destination
+      x-tags:
+        - Models
     JourneyStop:
       title: JourneyStop
       type: object
@@ -227,6 +298,8 @@ components:
       required:
         - stop_id
         - stop_name
+      x-tags:
+        - Models
     Journey:
       title: Journey
       type: object
@@ -260,3 +333,4 @@ components:
         - SCOT_UNDER_18
       x-tags:
         - Models
+      description: Defines the accepted discount cards
