@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Admin API
   version: '1.0'
-  description: Ember admin endpoints
+  description: 'Ember admin endpoints, includes CRUD operations for most basic entities.'
 servers:
   - url: 'https://api.ember.to'
     description: Prod
@@ -32,3 +32,5 @@ paths:
               required:
                 - file
       description: This endpoint is for adding a number of objects to the database from a `.csv` file
+components:
+  securitySchemes: {}
