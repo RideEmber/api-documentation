@@ -12,6 +12,7 @@ servers:
     description: Mock
 tags:
   - name: Browse Journeys
+    description: Endpoints that are globally accessible with no authentication 
   - name: Internal Endpoints
 paths:
   /stops:
