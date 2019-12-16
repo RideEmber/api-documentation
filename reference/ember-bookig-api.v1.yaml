@@ -12,7 +12,7 @@ servers:
     description: Mock
 tags:
   - name: Browse Journeys
-    description: Endpoints that are globally accessible with no authentication 
+    description: Endpoints that are globally accessible with no authentication
   - name: Internal Endpoints
 paths:
   /stops:
@@ -218,9 +218,23 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Journey'
+                type: object
+                properties:
+                  journeys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Journey'
+                  passengers:
+                    type: integer
+                    minimum: 1
+                  discount_cards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DiscountCards'
+                required:
+                  - journeys
+                  - passengers
+                  - discount_cards
       operationId: get-prices
       requestBody:
         content:
@@ -228,10 +242,10 @@ paths:
             schema:
               type: object
               properties:
-                legs:
+                journeys:
                   type: array
                   items:
-                    $ref: '#/components/schemas/Leg'
+                    $ref: '#/components/schemas/Journey'
                 passengers:
                   type: integer
                   minimum: 1
@@ -239,6 +253,11 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/DiscountCards'
+              required:
+                - journeys
+                - passengers
+                - discount_cards
+        description: 'The journey object in the response contains the `price` property, unlike the request.'
       description: This endpoint is used for finding prices for a set of journeys. It is used internally with `/legs` to create the `/journeys` endpoint.
 components:
   schemas:
@@ -315,17 +334,8 @@ components:
         price:
           type: number
           minimum: 0
-        passengers:
-          type: integer
-          minimum: 1
-        discount_cards:
-          type: array
-          items:
-            $ref: '#/components/schemas/DiscountCards'
       required:
         - legs
-        - price
-        - passengers
     DiscountCards:
       type: string
       title: DiscountCards
