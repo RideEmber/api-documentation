@@ -68,7 +68,12 @@ paths:
                       stop_type: 2
       operationId: get-stops
       description: 'Get a list of possible stops to book a journey. the result is a list of `Stop` objects, which includes groups of stops, such as cities.'
-      parameters: []
+      parameters:
+        - schema:
+            $ref: '#/components/schemas/format'
+          in: query
+          name: format
+          example: json
       tags:
         - Browse Journeys
     parameters: []
@@ -110,6 +115,7 @@ paths:
       parameters:
         - schema:
             type: integer
+          example: '3'
           in: query
           name: origin
           description: The id of the stop at the begining of the trip
@@ -146,7 +152,6 @@ paths:
           in: query
           name: passengers
           description: the amount of seats requested
-          required: true
         - schema:
             type: array
             items:
@@ -154,6 +159,11 @@ paths:
           in: query
           name: discounts
           description: 'a list of all applied discount cards, see DiscountCards under Models for reference'
+        - schema:
+            $ref: '#/components/schemas/format'
+          in: query
+          name: format
+          example: json
       tags:
         - Browse Journeys
     parameters: []
@@ -345,3 +355,11 @@ components:
       x-tags:
         - Models
       description: Defines the accepted discount cards
+    format:
+      type: string
+      title: format
+      default: json
+      enum:
+        - json
+        - api
+      description: The format of the response can be `api` or `json`
