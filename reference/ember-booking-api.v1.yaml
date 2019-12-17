@@ -115,13 +115,14 @@ paths:
       parameters:
         - schema:
             type: integer
-          example: '3'
+          example: 3
           in: query
           name: origin
           description: The id of the stop at the begining of the trip
           required: true
         - schema:
             type: integer
+          example: 10
           in: query
           name: destination
           description: The id of the stop at the end of the trip
@@ -134,6 +135,7 @@ paths:
         - schema:
             type: string
             format: date-time
+          example: '2019-12-01T17:30:00'
           in: query
           name: departure-time-to
         - schema:
