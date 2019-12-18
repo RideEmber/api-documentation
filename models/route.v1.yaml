@@ -1,6 +1,6 @@
 title: Route
 type: object
-description: 'A collection of trips that follow the same, or a very similar, set of stops. The `route_number` is what appears on the vehicles that are deployed in this route for passengers to see.'
+description: 'A collection of trips that follow the same, or a very similar, set of stops. The `route_number` would appear on buses running this route to allow passengers to identify the right bus.'
 properties:
   id:
     type: integer

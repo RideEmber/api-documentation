@@ -15,4 +15,4 @@ required:
   - id
   - name
   - type
-description: 'The abstraction of any location that can be used to pickup or drop off passengers. This includes both groups of locations, such as cities, junctions and central stations, and specific locations such as a stance.'
+description: "A point or collection of points where passengers can be picked up or dropped off. A collection of points is used to make natural entities for people to use when searching for or booking ticket. \n\nFor example, people would generally want book a ticket from anywhere in Victoria Coach Station (London), not the exact stance. However, the exact stance might important when telling them exactly where to board their coach.\n\nOne point could belong to multiple stops of the same or different types."
