@@ -1,6 +1,9 @@
 title: Trip
 type: object
-description: 'A trip is a sequence of two or more stops that occur during a specific time period, Usually by the same vehicle and driver.'
+description: |-
+  A trip is a sequence of two or more stops that occur during a specific time period, Usually by the same vehicle and driver.
+
+  For an example, if a bus ran back and forth between Dundee and Edinburgh then one service from Dundee to Edinburgh (or vice versa) would be considered to be a trip.
 properties:
   id:
     type: integer
