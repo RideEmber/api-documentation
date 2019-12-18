@@ -150,12 +150,12 @@ paths:
           name: passengers
           description: the amount of seats requested
         - schema:
-            type: array
+            type: string
             items:
               $ref: '#/components/schemas/DiscountCards'
           in: query
           name: discounts
-          description: 'a list of all applied discount cards, see DiscountCards under Models for reference'
+          description: This param may appears more than once. Every instance is a discount for a single passenger.
       tags:
         - Browse Journeys
   /legs:
