@@ -3,6 +3,10 @@ info:
   title: Booking API
   version: '1.0'
   description: 'Ember that allow a customer to search for a journey, get a quote and book a ticket.'
+  contact:
+    name: Ember
+    url: 'https://www.ember.to'
+    email: developer@ember.to
 servers:
   - url: 'https://api.ember.to'
     description: Production

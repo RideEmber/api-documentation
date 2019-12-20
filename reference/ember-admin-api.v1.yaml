@@ -3,6 +3,10 @@ info:
   title: Admin API
   version: '1.0'
   description: 'API endpoints used for admin purposes, such as uploading a CSV to add a timetable.'
+  contact:
+    name: Ember
+    url: 'https://www.ember.to'
+    email: developer@ember.to
 servers:
   - url: 'https://api.ember.to'
     description: Production
@@ -10,27 +14,10 @@ servers:
     description: Development
   - url: 'http://localhost:3100'
     description: Mock
+tags:
+  - name: Bulk
+    description: Endpoints used for bulk admin purposes
 paths:
-  /bulk:
-    post:
-      summary: Bulk Create Objects
-      tags: []
-      responses:
-        '200':
-          description: OK
-      operationId: post-bulk
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: A `.csv` file
-              required:
-                - file
-      description: This endpoint is for adding a number of objects to the database from a `.csv` file
+  /bulk: {}
 components:
   securitySchemes: {}
