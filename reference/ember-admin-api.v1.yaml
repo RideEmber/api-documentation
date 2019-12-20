@@ -2,12 +2,12 @@ openapi: 3.0.0
 info:
   title: Admin API
   version: '1.0'
-  description: 'Ember admin endpoints, includes CRUD operations for most basic entities.'
+  description: 'API endpoints used for admin purposes, such as uploading a CSV to add a timetable.'
 servers:
   - url: 'https://api.ember.to'
-    description: Prod
+    description: Production
   - url: 'http://localhost:8000'
-    description: Dev
+    description: Development
   - url: 'http://localhost:3100'
     description: Mock
 paths:

@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Booking API
   version: '1.0'
-  description: Ember Booking endpoints
+  description: 'Ember that allow a customer to search for a journey, get a quote and book a ticket.'
 servers:
   - url: 'https://api.ember.to'
     description: Production
@@ -176,7 +176,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Leg'
-      operationId: get-Legs
+      operationId: get-legs
       parameters:
         - schema:
             type: integer
@@ -307,6 +307,8 @@ components:
           arrival: '2020-05-20T00:45:00Z'
           stop_id: 5
           stop_name: Edinburgh (Melville Street)
+      x-tags:
+        - Models
       properties:
         stop_id:
           type: integer
@@ -323,8 +325,6 @@ components:
       required:
         - stop_id
         - stop_name
-      x-tags:
-        - Models
     Journey:
       title: Journey
       type: object
