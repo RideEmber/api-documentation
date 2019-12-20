@@ -8,12 +8,12 @@ properties:
   route:
     type: integer
     minimum: 1
-  stops:
+  locations:
     type: array
     minItems: 2
     items:
-      $ref: ./stop-time.v1.yaml
+      $ref: ./location-time.v1.yaml
 required:
   - id
   - route
-  - stops
+  - locations

@@ -1,4 +1,4 @@
-title: StopTime
+title: Location Time
 type: object
 properties:
   id:

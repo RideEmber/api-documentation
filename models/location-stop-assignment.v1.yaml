@@ -1,4 +1,4 @@
-title: StopLocationAssignment
+title: Location Stop Assignment
 type: object
 properties:
   id:
@@ -16,4 +16,4 @@ required:
   - id
   - location
   - stop
-description: 'The relation between a physical stop, i.e. an instance of `StopLocation`, and a group of stops, i.e. an instance of `Stop`.'
+description: The relation between a `stop` and a `location`. An actively used stop should always be assigned to a location of type stop but may also be in other locations which contain many stops.

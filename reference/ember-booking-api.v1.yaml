@@ -166,114 +166,12 @@ paths:
           description: Any discounts they are eligible for. The discount parameter may be passed multiple times – once for each discount
       tags:
         - Browse Journeys
-  /legs:
-    get:
-      summary: Find Legs
-      tags:
-        - Internal Endpoints
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Leg'
-      operationId: get-legs
-      parameters:
-        - schema:
-            type: integer
-          in: query
-          name: origin
-          description: The id of the stop at the begining of the trip
-          required: true
-        - schema:
-            type: integer
-          in: query
-          name: destination
-          description: The id of the stop at the end of the trip
-          required: true
-        - schema:
-            type: string
-            format: date-time
-          in: query
-          name: departure-time-from
-        - schema:
-            type: string
-            format: date-time
-          in: query
-          name: departure-time-to
-        - schema:
-            type: string
-            format: date-time
-          in: query
-          name: arrival-time-from
-        - schema:
-            type: string
-            format: date-time
-          in: query
-          name: arrival-time-to
-      description: This endpoint is used for finding journeys that satisfy a set of conditions. It is used internally with `/prices` to create the `/journeys` endpoint.
-    parameters: []
-  /prices:
-    get:
-      summary: Get prices
-      tags:
-        - Internal Endpoints
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  journeys:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Journey'
-                  passengers:
-                    type: integer
-                    minimum: 1
-                  discount_cards:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/DiscountCards'
-                required:
-                  - journeys
-                  - passengers
-                  - discount_cards
-      operationId: get-prices
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                journeys:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Journey'
-                passengers:
-                  type: integer
-                  minimum: 1
-                discount_cards:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/DiscountCards'
-              required:
-                - journeys
-                - passengers
-                - discount_cards
-        description: 'The journey object in the response contains the `price` property, unlike the request.'
-      description: This endpoint is used for finding prices for a set of journeys. It is used internally with `/legs` to create the `/journeys` endpoint.
 components:
   schemas:
     Leg:
       title: Leg
       type: object
-      description: The result object a client recives when searching for trips.
+      description: The result object a client receives when searching for trips.
       x-examples:
         Dundee to Edinburgh:
           id: 1367
