@@ -85,9 +85,19 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Journey'
+                type: object
+                properties:
+                  journeys:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Journey'
+                  discounts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DiscountCards'
+                  passengers:
+                    type: integer
+                    minimum: 1
               examples:
                 Dundee to Edinburgh:
                   value:
@@ -166,6 +176,130 @@ paths:
           description: Any discounts they are eligible for. The discount parameter may be passed multiple times – once for each discount
       tags:
         - Browse Journeys
+  /reservations:
+    post:
+      summary: Reserve Seats on Journey
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      operationId: post-reservations
+      description: This endpoint is used for reserving seats on a journey before paying for them. This ensures that the passenger will be able to buy the tickts at the quoted price until the reservation expires.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                journey:
+                  $ref: '#/components/schemas/Journey'
+                passengers:
+                  type: integer
+                  minimum: 1
+                discounts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DiscountCards'
+                session:
+                  $ref: '#/components/schemas/Session'
+      tags:
+        - Ticketing
+    parameters: []
+    get:
+      summary: Get Resetvations for Session
+      operationId: get-reservations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+      parameters:
+        - schema:
+            $ref: '#/components/schemas/Session'
+          in: query
+          name: session
+          description: ''
+          required: true
+      description: Get a list of reservations for a given client session.
+      tags:
+        - Ticketing
+  /tickets:
+    get:
+      summary: Get Tickets for Account
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+      operationId: get-tickets
+      description: 'This endpoint is used to view upcoming and past journeys. All the tickets in the response should have status `CONFIRMED`. '
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: email
+      tags:
+        - Ticketing
+  /purchase:
+    post:
+      summary: Pay for Reserved Tickets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+      operationId: post-purchase
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reservations:
+                  type: array
+                  minItems: 1
+                  description: List of reservation ids
+                  items:
+                    type: string
+                payment_token:
+                  type: string
+                  description: One time token for payment
+                card:
+                  type: object
+                  properties:
+                    last_4:
+                      type: integer
+                    exp_month:
+                      type: integer
+                    exp_year:
+                      type: integer
+                    digital_wallet_type:
+                      type: string
+                    card_brand:
+                      type: string
+                amount:
+                  type: number
+                email:
+                  type: string
+                  format: email
+              required:
+                - reservations
+                - payment_token
+      tags:
+        - Ticketing
 components:
   schemas:
     Leg:
@@ -252,3 +386,42 @@ components:
       x-tags:
         - Models
       description: Defines the accepted discount cards
+    Session:
+      type: string
+      title: Session
+      format: uuid
+      description: A uuid that is created by the client to identify the session
+      x-tags:
+        - Models
+    Reservation:
+      title: Reservation
+      type: object
+      x-tags:
+        - Models
+      description: 'A reservation is initiated with status `RESERVED`. Once the ticket is payed for, the status is changed to `CONFIRMED`.'
+      properties:
+        id:
+          type: string
+          format: uuid
+        session:
+          $ref: '#/components/schemas/Session'
+        passengers:
+          type: integer
+          minimum: 1
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountCards'
+        journey:
+          $ref: '#/components/schemas/Journey'
+        expiration:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - RESERVED
+            - CONFIRMED
+        email:
+          type: string
+          format: email
