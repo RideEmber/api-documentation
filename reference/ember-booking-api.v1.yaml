@@ -98,27 +98,86 @@ paths:
                   passengers:
                     type: integer
                     minimum: 1
+                    maximum: 99
               examples:
-                Dundee to Edinburgh:
+                Lorem:
                   value:
-                    - id: 1
-                      origin:
-                        departure: '2019-12-01T06:30:00Z'
-                        stop_id: 1
-                        stop_name: Dundee (Greenmarket)
-                      destination:
-                        arrival: '2019-12-01T08:15:00Z'
-                        stop_id: 5
-                        stop_name: Edinburgh (Melville Street)
-                    - id: 1
-                      origin:
-                        departure: '2019-12-01T06:30:00Z'
-                        stop_id: 1
-                        stop_name: Dundee (Greenmarket)
-                      destination:
-                        arrival: '2019-12-01T07:59:00Z'
-                        stop_id: 4
-                        stop_name: Edinburgh (Blackhall Library)
+                    journeys:
+                      - legs:
+                          - trip_id: 26900608
+                            origin:
+                              stop_id: 66
+                              stop_name: 'cillum '
+                              departure: '1943-06-28T04:50:46.794Z'
+                              arrival: '2017-07-20T16:24:19.966Z'
+                              stop_description: sunt dolor
+                            destination:
+                              stop_id: 75416410
+                              stop_name: labore culpa
+                              departure: '1999-09-19T14:57:38.93Z'
+                              arrival: '1958-04-02T13:37:05.34Z'
+                              stop_description: sunt nulla veniam sint offi
+                        price: 7
+                      - legs:
+                          - trip_id: 6078
+                            origin:
+                              stop_id: 56
+                              stop_name: velit nulla
+                              departure: '1963-05-12T19:13:15.328Z'
+                              arrival: '1985-07-09T15:49:09.368Z'
+                              stop_description: dolore occaecat ut
+                            destination:
+                              stop_id: 75394982
+                              stop_name: nisi irure
+                              departure: '1953-10-08T22:25:23.816Z'
+                              arrival: '1982-07-11T20:58:37.293Z'
+                              stop_description: ut exercitation proident quis ipsum
+                          - trip_id: 460831
+                            origin:
+                              stop_id: 74655441
+                              stop_name: magna aliqua
+                              departure: '1970-05-12T04:40:59.658Z'
+                              arrival: '1960-03-08T16:39:02.761Z'
+                              stop_description: commodo occaecat esse consectetur magna
+                            destination:
+                              stop_id: 75934841
+                              stop_name: dolore deserunt nostrud sit
+                              departure: '1940-05-20T04:52:45.902Z'
+                              arrival: '1968-08-12T16:06:06.258Z'
+                              stop_description: eiusmod in
+                        price: 9.6
+                      - legs:
+                          - trip_id: 85141208
+                            origin:
+                              stop_id: 5987
+                              stop_name: aliquip
+                              departure: '1982-03-18T01:16:42.937Z'
+                              arrival: '1958-10-29T23:59:55.37Z'
+                              stop_description: nostrud
+                            destination:
+                              stop_id: 63321725
+                              stop_name: sed magna proident
+                              departure: '1942-09-16T21:05:36.954Z'
+                              arrival: '1998-02-19T02:07:13.218Z'
+                              stop_description: quis
+                          - trip_id: 226697
+                            origin:
+                              stop_id: 45247104
+                              stop_name: et non sit
+                              departure: '1997-09-08T04:26:36.283Z'
+                              arrival: '1940-03-01T02:54:19.474Z'
+                              stop_description: do eu
+                            destination:
+                              stop_id: 525943
+                              stop_name: dolor do tempor
+                              departure: '2004-12-26T00:04:59.421Z'
+                              arrival: '1982-03-24T14:52:10.582Z'
+                              stop_description: anim aliquip dolor
+                        price: 54.5
+                    discounts:
+                      - SCOT_CONCESSION
+                      - SCOT_UNDER_18
+                    passengers: 4
       operationId: get-journeys
       description: "Search for possible journeys between stops. In future, journeys could include a change of bus but we don't support for now. Full journey information, including pricing, will be returned."
       parameters:
@@ -186,6 +245,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reservation'
+              examples:
+                Lorem:
+                  value:
+                    id: ecac9000-bf83-542a-d22c-7a749bfdb07b
+                    session: e14f0ce2-bbe3-44a0-a38f-23ea83b355d6
+                    passengers: 3
+                    discounts:
+                      - SCOT_CONCESSION
+                    journey:
+                      legs:
+                        - trip_id: 1
+                          origin:
+                            stop_id: 65800880
+                            stop_name: irure
+                            departure: '1954-05-31T19:44:33.185Z'
+                            arrival: '2015-09-21T10:33:38.407Z'
+                            stop_description: sed officia in in deserunt
+                          destination:
+                            stop_id: 11
+                            stop_name: consectetur
+                            departure: '2009-07-14T18:16:03.222Z'
+                            arrival: '1966-04-08T01:23:11.067Z'
+                            stop_description: minim ipsum veniam
+                      price: 16
+                    expiration: '2002-11-29T04:43:32.159Z'
+                    status: RESERVED
+                    email: barack@hum.oz
       operationId: post-reservations
       description: This endpoint is used for reserving seats on a journey before paying for them. This ensures that the passenger will be able to buy the tickts at the quoted price until the reservation expires.
       requestBody:
@@ -205,6 +291,21 @@ paths:
                     $ref: '#/components/schemas/DiscountCards'
                 session:
                   $ref: '#/components/schemas/Session'
+            examples:
+              Lorem:
+                value:
+                  journey:
+                    legs:
+                      - trip_id: 1
+                        origin:
+                          stop_id: 1
+                        destination:
+                          stop_id: 11
+                  passengers: 2
+                  discounts:
+                    - SCOT_CONCESSION
+                  session: e14f0ce2-bbe3-44a0-a38f-23ea83b355d6
+        description: ''
       tags:
         - Ticketing
     parameters: []
@@ -220,6 +321,141 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Reservation'
+              examples:
+                Lorem:
+                  value:
+                    - id: b0b0307e-cca0-1ae1-6138-dbb0947f944c
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 1
+                      discounts:
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 13160610
+                            origin:
+                              stop_id: 20943852
+                              stop_name: qui
+                              departure: '1947-02-09T09:08:37.763Z'
+                              arrival: '1964-07-30T04:37:36.985Z'
+                              stop_description: occaecat dolore
+                            destination:
+                              stop_id: 85474998
+                              stop_name: consectetur fugiat voluptate
+                              departure: '1977-04-06T19:16:16.602Z'
+                              arrival: '1995-12-05T16:51:31.008Z'
+                              stop_description: tempor dolor in
+                        price: 6
+                      expiration: '1962-10-26T19:01:00.422Z'
+                      status: RESERVED
+                    - id: 01712655-5caf-de18-0f1f-219a0c4d9e54
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 3
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 35521030
+                            origin:
+                              stop_id: 85715406
+                              stop_name: fugiat
+                              departure: '1957-10-09T09:26:45.771Z'
+                              arrival: '1988-11-16T08:35:59.448Z'
+                              stop_description: ut s
+                            destination:
+                              stop_id: 32290969
+                              stop_name: adipisicing officia laborum
+                              departure: '1940-04-24T07:45:01.466Z'
+                              arrival: '1981-03-30T09:35:35.43Z'
+                              stop_description: nisi in minim
+                          - trip_id: 19356345
+                            origin:
+                              stop_id: 47755649
+                              stop_name: et id
+                              departure: '1989-05-22T10:13:18.108Z'
+                              arrival: '2015-07-12T03:31:53.253Z'
+                              stop_description: minim aute
+                            destination:
+                              stop_id: 82647392
+                              stop_name: enim
+                              departure: '1990-11-18T12:44:46.095Z'
+                              arrival: '2019-09-09T18:20:52.122Z'
+                              stop_description: fugiat Ut eu voluptate
+                        price: 17.4
+                      expiration: '1990-10-08T18:11:15.917Z'
+                      status: RESERVED
+                    - id: 0ba7cfd6-1ddb-902a-9305-fd67683c51ae
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 2
+                      discounts: []
+                      journey:
+                        legs:
+                          - trip_id: 62492290
+                            origin:
+                              stop_id: 5077259
+                              stop_name: qui
+                              departure: '2005-02-28T02:24:36.666Z'
+                              arrival: '1988-01-07T16:43:01.26Z'
+                              stop_description: ipsum velit mollit
+                            destination:
+                              stop_id: 52721116
+                              stop_name: sunt adipisicing Excepteur
+                              departure: '1954-06-11T10:19:45.034Z'
+                              arrival: '2014-12-14T05:46:15.649Z'
+                              stop_description: 'proident irure '
+                        price: 12
+                      expiration: '1955-09-15T12:40:10.676Z'
+                      status: RESERVED
+                    - id: 7d8de714-7c99-90a0-f988-f49d78d06217
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 5
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_CONCESSION
+                      journey:
+                        legs:
+                          - trip_id: 57227851
+                            origin:
+                              stop_id: 97144311
+                              stop_name: labore in e
+                              departure: '1956-09-06T19:44:27.287Z'
+                              arrival: '2014-08-20T04:09:03.311Z'
+                              stop_description: non consectetur commodo
+                            destination:
+                              stop_id: 50488109
+                              stop_name: irure
+                              departure: '2001-11-15T02:25:53.038Z'
+                              arrival: '1977-07-01T05:45:09.886Z'
+                              stop_description: esse mollit cupidatat Lorem dolore
+                          - trip_id: 73275386
+                            origin:
+                              stop_id: 60864495
+                              stop_name: officia culpa aliqua nisi
+                              departure: '1945-03-07T10:57:51.298Z'
+                              arrival: '2014-03-15T08:40:39.733Z'
+                              stop_description: ut Duis
+                            destination:
+                              stop_id: 16381921
+                              stop_name: dolore magna
+                              departure: '1940-05-15T07:37:34.116Z'
+                              arrival: '1978-05-23T21:53:39.905Z'
+                              stop_description: ex reprehenderit officia
+                          - trip_id: 33982098
+                            origin:
+                              stop_id: 18179307
+                              stop_name: voluptate
+                              departure: '1943-05-15T11:34:44.191Z'
+                              arrival: '1967-11-17T02:15:02.786Z'
+                              stop_description: eu sit fugiat consequat
+                            destination:
+                              stop_id: 97876501
+                              stop_name: est al
+                              departure: '1968-05-30T04:42:23.482Z'
+                              arrival: '1999-07-27T15:11:13.086Z'
+                              stop_description: aute exercitation laborum consequat
+                        price: 21
+                      expiration: '1973-10-02T03:58:26.533Z'
+                      status: RESERVED
       parameters:
         - schema:
             $ref: '#/components/schemas/Session'
@@ -242,6 +478,145 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Reservation'
+              examples:
+                Lorem:
+                  value:
+                    - id: b0b0307e-cca0-1ae1-6138-dbb0947f944c
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 1
+                      discounts:
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 13160610
+                            origin:
+                              stop_id: 20943852
+                              stop_name: qui
+                              departure: '1947-02-09T09:08:37.763Z'
+                              arrival: '1964-07-30T04:37:36.985Z'
+                              stop_description: occaecat dolore
+                            destination:
+                              stop_id: 85474998
+                              stop_name: consectetur fugiat voluptate
+                              departure: '1977-04-06T19:16:16.602Z'
+                              arrival: '1995-12-05T16:51:31.008Z'
+                              stop_description: tempor dolor in
+                        price: 6
+                      expiration: '1962-10-26T19:01:00.422Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 01712655-5caf-de18-0f1f-219a0c4d9e54
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 3
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 35521030
+                            origin:
+                              stop_id: 85715406
+                              stop_name: fugiat
+                              departure: '1957-10-09T09:26:45.771Z'
+                              arrival: '1988-11-16T08:35:59.448Z'
+                              stop_description: ut s
+                            destination:
+                              stop_id: 32290969
+                              stop_name: adipisicing officia laborum
+                              departure: '1940-04-24T07:45:01.466Z'
+                              arrival: '1981-03-30T09:35:35.43Z'
+                              stop_description: nisi in minim
+                          - trip_id: 19356345
+                            origin:
+                              stop_id: 47755649
+                              stop_name: et id
+                              departure: '1989-05-22T10:13:18.108Z'
+                              arrival: '2015-07-12T03:31:53.253Z'
+                              stop_description: minim aute
+                            destination:
+                              stop_id: 82647392
+                              stop_name: enim
+                              departure: '1990-11-18T12:44:46.095Z'
+                              arrival: '2019-09-09T18:20:52.122Z'
+                              stop_description: fugiat Ut eu voluptate
+                        price: 17.4
+                      expiration: '1990-10-08T18:11:15.917Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 0ba7cfd6-1ddb-902a-9305-fd67683c51ae
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 2
+                      discounts: []
+                      journey:
+                        legs:
+                          - trip_id: 62492290
+                            origin:
+                              stop_id: 5077259
+                              stop_name: qui
+                              departure: '2005-02-28T02:24:36.666Z'
+                              arrival: '1988-01-07T16:43:01.26Z'
+                              stop_description: ipsum velit mollit
+                            destination:
+                              stop_id: 52721116
+                              stop_name: sunt adipisicing Excepteur
+                              departure: '1954-06-11T10:19:45.034Z'
+                              arrival: '2014-12-14T05:46:15.649Z'
+                              stop_description: 'proident irure '
+                        price: 12
+                      expiration: '1955-09-15T12:40:10.676Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 7d8de714-7c99-90a0-f988-f49d78d06217
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 5
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_CONCESSION
+                      journey:
+                        legs:
+                          - trip_id: 57227851
+                            origin:
+                              stop_id: 97144311
+                              stop_name: labore in e
+                              departure: '1956-09-06T19:44:27.287Z'
+                              arrival: '2014-08-20T04:09:03.311Z'
+                              stop_description: non consectetur commodo
+                            destination:
+                              stop_id: 50488109
+                              stop_name: irure
+                              departure: '2001-11-15T02:25:53.038Z'
+                              arrival: '1977-07-01T05:45:09.886Z'
+                              stop_description: esse mollit cupidatat Lorem dolore
+                          - trip_id: 73275386
+                            origin:
+                              stop_id: 60864495
+                              stop_name: officia culpa aliqua nisi
+                              departure: '1945-03-07T10:57:51.298Z'
+                              arrival: '2014-03-15T08:40:39.733Z'
+                              stop_description: ut Duis
+                            destination:
+                              stop_id: 16381921
+                              stop_name: dolore magna
+                              departure: '1940-05-15T07:37:34.116Z'
+                              arrival: '1978-05-23T21:53:39.905Z'
+                              stop_description: ex reprehenderit officia
+                          - trip_id: 33982098
+                            origin:
+                              stop_id: 18179307
+                              stop_name: voluptate
+                              departure: '1943-05-15T11:34:44.191Z'
+                              arrival: '1967-11-17T02:15:02.786Z'
+                              stop_description: eu sit fugiat consequat
+                            destination:
+                              stop_id: 97876501
+                              stop_name: est al
+                              departure: '1968-05-30T04:42:23.482Z'
+                              arrival: '1999-07-27T15:11:13.086Z'
+                              stop_description: aute exercitation laborum consequat
+                        price: 21
+                      expiration: '1973-10-02T03:58:26.533Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
       operationId: get-tickets
       description: 'This endpoint is used to view upcoming and past journeys. All the tickets in the response should have status `CONFIRMED`. '
       parameters:
@@ -261,6 +636,145 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reservation'
+              examples:
+                Lorem:
+                  value:
+                    - id: b0b0307e-cca0-1ae1-6138-dbb0947f944c
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 1
+                      discounts:
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 13160610
+                            origin:
+                              stop_id: 20943852
+                              stop_name: qui
+                              departure: '1947-02-09T09:08:37.763Z'
+                              arrival: '1964-07-30T04:37:36.985Z'
+                              stop_description: occaecat dolore
+                            destination:
+                              stop_id: 85474998
+                              stop_name: consectetur fugiat voluptate
+                              departure: '1977-04-06T19:16:16.602Z'
+                              arrival: '1995-12-05T16:51:31.008Z'
+                              stop_description: tempor dolor in
+                        price: 6
+                      expiration: '1962-10-26T19:01:00.422Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 01712655-5caf-de18-0f1f-219a0c4d9e54
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 3
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_UNDER_18
+                      journey:
+                        legs:
+                          - trip_id: 35521030
+                            origin:
+                              stop_id: 85715406
+                              stop_name: fugiat
+                              departure: '1957-10-09T09:26:45.771Z'
+                              arrival: '1988-11-16T08:35:59.448Z'
+                              stop_description: ut s
+                            destination:
+                              stop_id: 32290969
+                              stop_name: adipisicing officia laborum
+                              departure: '1940-04-24T07:45:01.466Z'
+                              arrival: '1981-03-30T09:35:35.43Z'
+                              stop_description: nisi in minim
+                          - trip_id: 19356345
+                            origin:
+                              stop_id: 47755649
+                              stop_name: et id
+                              departure: '1989-05-22T10:13:18.108Z'
+                              arrival: '2015-07-12T03:31:53.253Z'
+                              stop_description: minim aute
+                            destination:
+                              stop_id: 82647392
+                              stop_name: enim
+                              departure: '1990-11-18T12:44:46.095Z'
+                              arrival: '2019-09-09T18:20:52.122Z'
+                              stop_description: fugiat Ut eu voluptate
+                        price: 17.4
+                      expiration: '1990-10-08T18:11:15.917Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 0ba7cfd6-1ddb-902a-9305-fd67683c51ae
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 2
+                      discounts: []
+                      journey:
+                        legs:
+                          - trip_id: 62492290
+                            origin:
+                              stop_id: 5077259
+                              stop_name: qui
+                              departure: '2005-02-28T02:24:36.666Z'
+                              arrival: '1988-01-07T16:43:01.26Z'
+                              stop_description: ipsum velit mollit
+                            destination:
+                              stop_id: 52721116
+                              stop_name: sunt adipisicing Excepteur
+                              departure: '1954-06-11T10:19:45.034Z'
+                              arrival: '2014-12-14T05:46:15.649Z'
+                              stop_description: 'proident irure '
+                        price: 12
+                      expiration: '1955-09-15T12:40:10.676Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
+                    - id: 7d8de714-7c99-90a0-f988-f49d78d06217
+                      session: 0120d872-338f-8195-27fe-ca930ac5b36e
+                      passengers: 5
+                      discounts:
+                        - SCOT_CONCESSION
+                        - SCOT_CONCESSION
+                      journey:
+                        legs:
+                          - trip_id: 57227851
+                            origin:
+                              stop_id: 97144311
+                              stop_name: labore in e
+                              departure: '1956-09-06T19:44:27.287Z'
+                              arrival: '2014-08-20T04:09:03.311Z'
+                              stop_description: non consectetur commodo
+                            destination:
+                              stop_id: 50488109
+                              stop_name: irure
+                              departure: '2001-11-15T02:25:53.038Z'
+                              arrival: '1977-07-01T05:45:09.886Z'
+                              stop_description: esse mollit cupidatat Lorem dolore
+                          - trip_id: 73275386
+                            origin:
+                              stop_id: 60864495
+                              stop_name: officia culpa aliqua nisi
+                              departure: '1945-03-07T10:57:51.298Z'
+                              arrival: '2014-03-15T08:40:39.733Z'
+                              stop_description: ut Duis
+                            destination:
+                              stop_id: 16381921
+                              stop_name: dolore magna
+                              departure: '1940-05-15T07:37:34.116Z'
+                              arrival: '1978-05-23T21:53:39.905Z'
+                              stop_description: ex reprehenderit officia
+                          - trip_id: 33982098
+                            origin:
+                              stop_id: 18179307
+                              stop_name: voluptate
+                              departure: '1943-05-15T11:34:44.191Z'
+                              arrival: '1967-11-17T02:15:02.786Z'
+                              stop_description: eu sit fugiat consequat
+                            destination:
+                              stop_id: 97876501
+                              stop_name: est al
+                              departure: '1968-05-30T04:42:23.482Z'
+                              arrival: '1999-07-27T15:11:13.086Z'
+                              stop_description: aute exercitation laborum consequat
+                        price: 21
+                      expiration: '1973-10-02T03:58:26.533Z'
+                      status: CONFIRMED
+                      email: gori@shir.cof
       operationId: post-purchase
       requestBody:
         content:
@@ -298,6 +812,21 @@ paths:
               required:
                 - reservations
                 - payment_token
+            examples:
+              Lorem:
+                value:
+                  reservations:
+                    - b0b0307e-cca0-1ae1-6138-dbb0947f944c
+                    - 01712655-5caf-de18-0f1f-219a0c4d9e54
+                  payment_token: 'cnon:CBASEKQi04K-O7rpnYVWBcUr5ws'
+                  card:
+                    last_4: 3210
+                    exp_month: 2
+                    exp_year: 20
+                    digital_wallet_type: NONE
+                    card_brand: VISA
+                  amount: 30
+                  email: user@example.com
       tags:
         - Ticketing
 components:
@@ -317,9 +846,12 @@ components:
             arrival: '2020-05-20T00:45:00Z'
             stop_id: 5
             stop_name: Edinburgh (Melville Street)
+      x-tags:
+        - Models
       properties:
         trip_id:
           type: integer
+          minimum: 1
         origin:
           $ref: '#/components/schemas/JourneyStop'
         destination:
@@ -328,8 +860,6 @@ components:
         - trip_id
         - origin
         - destination
-      x-tags:
-        - Models
     JourneyStop:
       title: JourneyStop
       type: object
@@ -348,6 +878,7 @@ components:
       properties:
         stop_id:
           type: integer
+          minimum: 1
         stop_name:
           type: string
         departure:
@@ -360,7 +891,6 @@ components:
           type: string
       required:
         - stop_id
-        - stop_name
     Journey:
       title: Journey
       type: object
@@ -408,6 +938,7 @@ components:
         passengers:
           type: integer
           minimum: 1
+          maximum: 99
         discounts:
           type: array
           items:
