@@ -14,8 +14,6 @@ servers:
     description: Development
   - url: 'http://localhost:3100'
     description: Mock
-tags:
-  - name: Models
 paths:
   /locations:
     get:
@@ -96,6 +94,8 @@ paths:
       operationId: get-locations
       description: 'Get a list of possible stops to book a journey. the result is a list of `Location` objects, which includes groups of stops, such as cities.'
       parameters: []
+      tags:
+        - Paths
     parameters: []
   /quotes:
     get:
@@ -181,12 +181,14 @@ paths:
           in: header
           name: x-session-id
           required: true
-          description: A uuid that is created by the client to identify the session
+      tags:
+        - Paths
     parameters: []
   /tickets:
     post:
       summary: Add Ticket to Basket
-      tags: []
+      tags:
+        - Paths
       responses:
         '200':
           description: OK
@@ -202,13 +204,56 @@ paths:
           in: header
           name: x-session-id
           required: true
-          description: A uuid that is created by the client to identify the session
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Ticket'
         description: 'The payload comes from the qoute data. Note that the price is sent just for reference, and not guaranteed.'
+  /orders:
+    post:
+      summary: Create Order
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      operationId: post-orders
+      parameters:
+        - schema:
+            $ref: '#/components/schemas/Session'
+          in: header
+          name: x-session-id
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+  '/orders/{uid}':
+    parameters:
+      - schema:
+          type: string
+        name: uid
+        in: path
+        required: true
+    get:
+      summary: Get Order by Id
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      operationId: get-order-by-uid
+      description: ''
 components:
   schemas:
     Leg:
@@ -339,4 +384,66 @@ components:
             - OPEN
             - CLOSED
       required:
+        - amount
         - tickets
+    Custumer:
+      title: Custumer
+      type: object
+      x-tags:
+        - Models
+      properties:
+        uid:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+      required:
+        - email
+    Order:
+      title: Order
+      type: object
+      x-tags:
+        - Models
+      description: 'An order is an immutable list of tickets for purchase with a single payment reference. Once the payment is completed successfully, all the tickets in the order are considered to be "booked". Note that an order is a finalised basket, but creating an order does not depend on previously creating a basket.'
+      properties:
+        tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        payment_intent:
+          $ref: '#/components/schemas/PaymentIntent'
+        custumer:
+          $ref: '#/components/schemas/Custumer'
+        uid:
+          type: string
+          format: uuid
+      required:
+        - tickets
+        - payment_intent
+        - custumer
+    PaymentIntent:
+      title: PaymentIntent
+      type: object
+      x-tags:
+        - Models
+      properties:
+        pi_id:
+          type: string
+        client_secret:
+          type: string
+        status:
+          type: string
+          enum:
+            - requires_payment_method
+            - succeeded
+        amount:
+          type: integer
+      required:
+        - pi_id
+        - client_secret
+        - status
+        - amount
+tags:
+  - name: Models
+  - name: Paths

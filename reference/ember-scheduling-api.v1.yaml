@@ -16,6 +16,7 @@ servers:
     description: Mock
 tags:
   - name: Models
+  - name: Paths
 paths:
   /bulk:
     post:
@@ -35,6 +36,8 @@ paths:
                   type: string
                   format: binary
         description: The `.csv` file should be under a key named `file`.
+      tags:
+        - Paths
 components:
   schemas:
     Trip:
@@ -55,6 +58,8 @@ components:
         - id
         - route
         - locations
+      x-tags:
+        - Models
     LocationTime:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
@@ -83,6 +88,8 @@ components:
         - location
         - allow_boarding
         - allow_drop_off
+      x-tags:
+        - Models
     Location:
       type: object
       description: |-
@@ -110,6 +117,8 @@ components:
         - id
         - name
         - type
+      x-tags:
+        - Models
     Route:
       type: object
       description: 'A collection of trips that follow the same, or a very similar, set of stops. The `route_number` would appear on buses running this route to allow passengers to identify the right bus.'
@@ -125,6 +134,8 @@ components:
       required:
         - id
         - route_number
+      x-tags:
+        - Models
     LcationMap:
       title: LcationMap
       type: object
