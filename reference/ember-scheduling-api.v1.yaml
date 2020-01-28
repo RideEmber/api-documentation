@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  title: Scheduling API
+  version: '1.0'
+  description: 'API endpoints used for scheduling work assignments, such as assigning a vehicle to a trip and assigning stops to that trip.'
+  contact:
+    name: Ember
+    url: 'https://www.ember.to'
+    email: developer@ember.to
+servers:
+  - url: 'https://api.ember.to/scheduling '
+    description: Production
+  - url: 'http://localhost:8000/scheduling'
+    description: Development
+  - url: 'http://localhost:3100'
+    description: Mock
+tags:
+  - name: Bulk
+    description: Endpoints used for bulk admin purposes
+paths:
+  /bulk:
+    post:
+      summary: Create Bulk Objects
+      operationId: post-bulk
+      responses:
+        '200':
+          description: OK
+      description: 'This endpoint is used to add objects from a `.csv` file. The allowed objects are: `Trip`, `Route`, `Location`, `LocationTime` and `LocationMap`.'
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+        description: The `.csv` file should be under a key named `file`.
+components:
+  schemas:
+    Trip:
+      type: object
+      description: 'A trip is a sequence of two or more stops that occur during a specific time period, Usually by the same vehicle and driver. For an example, if we ran a route between Dundee and Edinburgh then a trip might be the journey from Dundee to Edinburgh at a particular time.'
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        route:
+          type: string
+        locations:
+          type: array
+          minItems: 2
+          items:
+            $ref: '#/components/schemas/LocationTime'
+      required:
+        - id
+        - route
+        - locations
+    LocationTime:
+      type: object
+      description: The stops that a vehicle is scheduled to make as part of a trip.
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        trip:
+          type: integer
+          minimum: 1
+        location:
+          $ref: '#/components/schemas/Location'
+        allow_boarding:
+          type: boolean
+        allow_drop_off:
+          type: boolean
+        arrival_time:
+          type: string
+          format: date-time
+        departure_time:
+          type: string
+          format: date-time
+      required:
+        - id
+        - trip
+        - location
+        - allow_boarding
+        - allow_drop_off
+    Location:
+      type: object
+      description: |-
+        A place where passengers can be picked up or dropped off. This doesn't not necessarilly mean a single stop – instead, a location can be one or many stops and is best thought of as an origin or destination that people might search for when booking a ticket.
+
+        For example, people would generally want book a ticket from anywhere in a bus station, not a particular stance. In addition, your timetable might reference the bus station, rather than the stance number, when it is produced. Only closer to the time will you know the exact stance.
+
+        Another example might be putting a city as a location – e.g. passengers might just want a ticket that goes somewhere in London, rather than being concerned by the exact stop.
+      x-examples: {}
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - CITY
+            - STOP
+            - STATION
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - type
+    Route:
+      type: object
+      description: 'A collection of trips that follow the same, or a very similar, set of stops. The `route_number` would appear on buses running this route to allow passengers to identify the right bus.'
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        route_number:
+          type: string
+        description:
+          type: string
+          description: May include a short description of the route
+      required:
+        - id
+        - route_number
+    LcationMap:
+      title: LcationMap
+      type: object
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        location:
+          $ref: '#/components/schemas/Location'
+        parant:
+          $ref: '#/components/schemas/Location'
+      required:
+        - id
+        - location
+        - parant
+      description: 'A location map is used where there is a hierarchy of locations. For example, the city London would be the parant of Victoria Station. '
