@@ -15,13 +15,11 @@ servers:
   - url: 'http://localhost:3100'
     description: Mock
 tags:
-  - name: Browse Journeys
-    description: Endpoints that are globally accessible with no authentication
-  - name: Internal Endpoints
+  - name: Models
 paths:
   /locations:
     get:
-      summary: Find Stops
+      summary: Get Locations
       responses:
         '200':
           description: OK
@@ -34,48 +32,70 @@ paths:
               examples:
                 Stops List:
                   value:
-                    - id: 3
+                    - id: 10
+                      name: Scotland
+                      type: Country
+                      description: null
+                    - id: 9
+                      name: Perth (Central Car Park)
+                      type: Stop
+                      description: null
+                    - id: 11
                       name: Dundee
-                      stop_type: 1
-                    - id: 4
+                      type: City
+                      description: null
+                    - id: 1
                       name: Dundee (Greenmarket)
-                      stop_type: 2
-                    - id: 5
+                      type: Stop
+                      description: null
+                    - id: 2
                       name: Dundee West (Apollo Way)
-                      stop_type: 2
-                    - id: 6
+                      type: Stop
+                      description: null
+                    - id: 12
                       name: Inchture
-                      stop_type: 1
-                    - id: 7
+                      type: City
+                      description: null
+                    - id: 3
                       name: Inchture (Westbound)
-                      stop_type: 2
+                      type: Stop
+                      description: null
                     - id: 8
                       name: Inchture (Eastbound)
-                      stop_type: 2
-                    - id: 9
-                      name: Edinburgh
-                      stop_type: 1
-                    - id: 10
-                      name: Edinburgh (Blackhall Library)
-                      stop_type: 2
-                    - id: 11
-                      name: Edinburgh (Melville Street)
-                      stop_type: 2
-                    - id: 12
-                      name: Ferrytoll (Park and Ride)
-                      stop_type: 2
+                      type: Stop
+                      description: null
                     - id: 13
+                      name: Edinburgh
+                      type: City
+                      description: null
+                    - id: 4
+                      name: Edinburgh (Blackhall Library)
+                      type: Stop
+                      description: null
+                    - id: 5
+                      name: Edinburgh (Melville Street)
+                      type: Stop
+                      description: null
+                    - id: 6
+                      name: Ferrytoll Park and Ride
+                      type: Stop
+                      description: null
+                    - id: 7
                       name: Kinross (Park and Ride)
-                      stop_type: 2
-                    - id: 2
-                      name: Perth (Central Car Park)
-                      stop_type: 2
+                      type: Stop
+                      description: null
+                    - id: 14
+                      name: Perth
+                      type: City
+                      description: null
+                    - id: 15
+                      name: Kinross
+                      type: City
+                      description: null
           headers: {}
       operationId: get-locations
       description: 'Get a list of possible stops to book a journey. the result is a list of `Location` objects, which includes groups of stops, such as cities.'
       parameters: []
-      tags:
-        - Browse Journeys
     parameters: []
   /quotes:
     get:
@@ -109,14 +129,14 @@ paths:
           example: 3
           in: query
           name: origin
-          description: The ID of the desired departure stop
+          description: The ID of the desired departure location
           required: true
         - schema:
             type: integer
           example: 10
           in: query
           name: destination
-          description: The ID of the desired destination stop
+          description: The ID of the desired destination location
           required: true
         - schema:
             type: string
@@ -162,9 +182,33 @@ paths:
           name: x-session-id
           required: true
           description: A uuid that is created by the client to identify the session
-      tags:
-        - Browse Journeys
     parameters: []
+  /tickets:
+    post:
+      summary: Add Ticket to Basket
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Basket'
+      operationId: post-tickets
+      description: ''
+      parameters:
+        - schema:
+            $ref: '#/components/schemas/Session'
+          in: header
+          name: x-session-id
+          required: true
+          description: A uuid that is created by the client to identify the session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Ticket'
+        description: 'The payload comes from the qoute data. Note that the price is sent just for reference, and not guaranteed.'
 components:
   schemas:
     Leg:
@@ -199,16 +243,16 @@ components:
       x-examples:
         Dundee (Greenmarket):
           departure: '2020-05-19T23:00:00Z'
-          location_id: 1
+          location_time_id: 1
           location_name: Dundee (Greenmarket)
         Edinburgh (Melville Street):
           arrival: '2020-05-20T00:45:00Z'
-          location_id: 5
+          location_time_id: 5
           location_name: Edinburgh (Melville Street)
       x-tags:
         - Models
       properties:
-        location_id:
+        location_time_id:
           type: integer
           minimum: 1
         location_name:
@@ -222,8 +266,7 @@ components:
         stop_description:
           type: string
       required:
-        - location_id
-        - location_name
+        - location_time_id
     Journey:
       title: Journey
       type: object
@@ -257,3 +300,43 @@ components:
       description: A uuid that is created by the client to identify the session
       x-tags:
         - Models
+    Ticket:
+      title: Ticket
+      type: object
+      x-tags:
+        - Models
+      properties:
+        price:
+          type: number
+        legs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Leg'
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountCards'
+      required:
+        - legs
+      description: 'A ticket is a reservation for one seat in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
+    Basket:
+      title: Basket
+      type: object
+      x-tags:
+        - Models
+      description: "Like in most e-commerce sites, a basket is a group of tickets the custumer creates for later purchase. The customer can add or remove tickets from the basket as long as the basket's status is `open`."
+      properties:
+        amount:
+          type: number
+          description: The current total cost of the tickets in the basket
+        tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSED
+      required:
+        - tickets
