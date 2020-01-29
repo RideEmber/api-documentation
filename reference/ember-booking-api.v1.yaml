@@ -233,7 +233,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Order'
+              type: object
+              properties:
+                tickets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Ticket'
+                amount:
+                  type: integer
+                  minimum: 1
+                custumer:
+                  $ref: '#/components/schemas/Custumer'
   '/orders/{uid}':
     parameters:
       - schema:
