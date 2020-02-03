@@ -111,7 +111,7 @@ paths:
                   journeys:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Journey'
+                      $ref: '#/components/schemas/Ticket'
                   discounts:
                     type: array
                     items:
@@ -120,6 +120,10 @@ paths:
                     type: integer
                     minimum: 1
                     maximum: 99
+                required:
+                  - journeys
+                  - discounts
+                  - passengers
               examples: {}
       operationId: get-quotes
       description: "Search for possible journeys between locations. In future, journeys could include a change of bus but we don't support for now. Full journey information, including pricing, will be returned."
@@ -322,23 +326,6 @@ components:
           type: string
       required:
         - location_time_id
-    Journey:
-      title: Journey
-      type: object
-      x-tags:
-        - Models
-      properties:
-        legs:
-          type: array
-          minItems: 1
-          items:
-            $ref: '#/components/schemas/Leg'
-        price:
-          type: number
-          minimum: 0
-      required:
-        - legs
-      description: A single journey includes at least one leg. A journey with multiple legs implies the passenger needs to change vehicles.
     DiscountCards:
       type: string
       title: DiscountCards
