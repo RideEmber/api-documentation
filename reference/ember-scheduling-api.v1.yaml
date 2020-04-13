@@ -38,6 +38,52 @@ paths:
         description: The `.csv` file should be under a key named `file`.
       tags:
         - Paths
+  /trips:
+    get:
+      summary: Get Trips
+      tags:
+        - Paths
+      responses: {}
+      operationId: get-trips
+      description: 'This endpoint returs a list of trip ids, based on conjunction of all given filter parameters. Thus, when called with no parameters, the endpint will return a list of all trip ids in the system.'
+      parameters:
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure-time-from
+          description: Filter out trips that depart before this datetime
+        - schema:
+            type: string
+            format: date-time
+          example: '2019-12-01T17:30:00'
+          in: query
+          name: departure-time-to
+          description: Filter out trips that depart after this datetime
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-from
+          description: Filter out trips that arrive before this datetime
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-to
+          description: Filter out trips that arrive after this datetime
+        - schema:
+            type: integer
+          example: 3
+          in: query
+          name: origin
+          description: Return only trips that depart from a location with this id
+        - schema:
+            type: integer
+          example: 10
+          in: query
+          name: destination
+          description: Return only trips that arrive to a location with this id after departing from the `origin` location (if given)
 components:
   schemas:
     Trip:
