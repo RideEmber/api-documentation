@@ -1,16 +1,16 @@
 openapi: 3.0.0
 info:
-  title: Booking API
+  title: Ember API
   version: '1.0'
-  description: 'Ember that allow a customer to search for a journey, get a quote and book a ticket.'
+  description: "A referance to all of Ember's API endpoints."
   contact:
     name: Ember
     url: 'https://www.ember.to'
     email: developer@ember.to
 servers:
-  - url: 'https://api.ember.to/booking'
+  - url: 'https://api.ember.to'
     description: Production
-  - url: 'http://localhost:8000/booking'
+  - url: 'http://localhost:8000'
     description: Development
   - url: 'http://localhost:3100'
     description: Mock
@@ -26,7 +26,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: './ember-scheduling-api.v1.yaml#/components/schemas/Location'
+                  $ref: '#/components/schemas/Location'
               examples:
                 Stops List:
                   value:
@@ -106,24 +106,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  journeys:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Ticket'
-                  discounts:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/DiscountCards'
-                  passengers:
-                    type: integer
-                    minimum: 1
-                    maximum: 99
-                required:
-                  - journeys
-                  - discounts
-                  - passengers
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quote'
               examples: {}
       operationId: get-quotes
       description: "Search for possible journeys between locations. In future, journeys could include a change of bus but we don't support for now. Full journey information, including pricing, will be returned."
@@ -146,32 +131,32 @@ paths:
             type: string
             format: date-time
           in: query
-          name: departure-time-from
-          description: Datetime they would like to leave after
+          name: out_date_from
+          description: Datetime they would like to leave after in outbound trip
         - schema:
             type: string
             format: date-time
           example: '2019-12-01T17:30:00'
           in: query
-          name: departure-time-to
-          description: Datetime they would like to leave before
+          name: out_date_to
+          description: Datetime they would like to leave before in outbound trip
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival-time-from
-          description: Datetime they would like to arrive after
+          name: return_date_from
+          description: Datetime they would like to leave after in return trip
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival-time-to
-          description: Datetime they would like to arrive before
+          name: return_date_to
+          description: Datetime they would like to leave before in retrun trip
         - schema:
             type: integer
             minimum: 1
           in: query
-          name: passengers
+          name: adults
           description: The total number of passengers travelling
         - schema:
             type: string
@@ -188,32 +173,6 @@ paths:
       tags:
         - Paths
     parameters: []
-  /tickets:
-    post:
-      summary: Add Ticket to Basket
-      tags:
-        - Paths
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Basket'
-      operationId: post-tickets
-      description: ''
-      parameters:
-        - schema:
-            $ref: '#/components/schemas/Session'
-          in: header
-          name: x-session-id
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Ticket'
-        description: 'The payload comes from the qoute data. Note that the price is sent just for reference, and not guaranteed.'
   /orders:
     post:
       summary: Create Order
@@ -225,14 +184,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  order:
+                    $ref: '#/components/schemas/Order'
       operationId: post-orders
-      parameters:
-        - schema:
-            $ref: '#/components/schemas/Session'
-          in: header
-          name: x-session-id
-          required: true
+      parameters: []
       requestBody:
         content:
           application/json:
@@ -243,11 +204,11 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Ticket'
-                amount:
-                  type: integer
-                  minimum: 1
                 custumer:
                   $ref: '#/components/schemas/Custumer'
+                method:
+                  type: string
+                  description: "either 'card' or payment method id"
   '/orders/{uid}':
     parameters:
       - schema:
@@ -268,12 +229,88 @@ paths:
                 $ref: '#/components/schemas/Order'
       operationId: get-order-by-uid
       description: ''
+  /trips:
+    get:
+      summary: Get Trips
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+      operationId: get-trips
+      description: 'This endpoint returs a list of trips, based on conjunction of all given filter parameters. Thus, when called with no parameters, the endpint will return a list of all trip ids in the system.'
+      parameters:
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: departure-time-from
+          description: Filter out trips that depart before this datetime
+        - schema:
+            type: string
+            format: date-time
+          example: '2019-12-01T17:30:00'
+          in: query
+          name: departure-time-to
+          description: Filter out trips that depart after this datetime
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-from
+          description: Filter out trips that arrive before this datetime
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: arrival-time-to
+          description: Filter out trips that arrive after this datetime
+        - schema:
+            type: integer
+          example: 3
+          in: query
+          name: origin
+          description: Return only trips that originate from a location with this id
+        - schema:
+            type: integer
+          example: 10
+          in: query
+          name: destination
+          description: Return only trips that arrive to a location with this id at the end of the trip
 components:
   schemas:
-    Leg:
-      title: Leg
+    Location:
       type: object
-      description: 'A leg is a single ride, typically with one vehicle.'
+      description: |-
+        A place where passengers can be picked up or dropped off. This doesn't not necessarilly mean a single stop – instead, a location can be one or many stops and is best thought of as an origin or destination that people might search for when booking a ticket.
+
+        For example, people would generally want book a ticket from anywhere in a bus station, not a particular stance. In addition, your timetable might reference the bus station, rather than the stance number, when it is produced. Only closer to the time will you know the exact stance.
+
+        Another example might be putting a city as a location – e.g. passengers might just want a ticket that goes somewhere in London, rather than being concerned by the exact stop.
+      x-examples: {}
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - CITY
+            - STOP
+            - STATION
+        description:
+          type: string
+      required:
+        - id
+        - name
+    Reservations:
+      title: Reservations
+      type: object
+      description: 'A reservations of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
       x-examples:
         Dundee to Edinburgh:
           id: 1367
@@ -289,43 +326,41 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/JourneyStop'
+          $ref: '#/components/schemas/LocationTime'
         destination:
-          $ref: '#/components/schemas/JourneyStop'
+          $ref: '#/components/schemas/LocationTime'
+        code:
+          type: string
+        type:
+          type: string
+          enum:
+            - SEAT
+            - WHEELCHAIR
+            - BIKE
       required:
         - origin
         - destination
-    JourneyStop:
-      title: JourneyStop
+        - type
+    LocationTime:
       type: object
-      description: 'A stop of a leg, either the origin or the destination.'
-      x-examples:
-        Dundee (Greenmarket):
-          departure: '2020-05-19T23:00:00Z'
-          location_time_id: 1
-          location_name: Dundee (Greenmarket)
-        Edinburgh (Melville Street):
-          arrival: '2020-05-20T00:45:00Z'
-          location_time_id: 5
-          location_name: Edinburgh (Melville Street)
+      description: The stops that a vehicle is scheduled to make as part of a trip.
       x-tags:
         - Models
       properties:
         location_time_id:
           type: integer
           minimum: 1
-        location_name:
-          type: string
-        departure:
-          type: string
-          format: date-time
-        arrival:
+        location:
+          $ref: '#/components/schemas/Location'
+        arrival_time:
           type: string
           format: date-time
-        stop_description:
+        departure_time:
           type: string
+          format: date-time
       required:
         - location_time_id
+        - location
     DiscountCards:
       type: string
       title: DiscountCards
@@ -347,44 +382,22 @@ components:
       type: object
       x-tags:
         - Models
+      description: 'A ticket is a reservation for one seat in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
       properties:
         price:
           type: number
-        legs:
+        reservations:
           type: array
           items:
-            $ref: '#/components/schemas/Leg'
+            $ref: '#/components/schemas/Reservations'
         discounts:
           type: array
           items:
             $ref: '#/components/schemas/DiscountCards'
       required:
-        - legs
-      description: 'A ticket is a reservation for one seat in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
-    Basket:
-      title: Basket
-      type: object
-      x-tags:
-        - Models
-      description: "Like in most e-commerce sites, a basket is a group of tickets the custumer creates for later purchase. The customer can add or remove tickets from the basket as long as the basket's status is `open`."
-      properties:
-        amount:
-          type: number
-          description: The current total cost of the tickets in the basket
-        tickets:
-          type: array
-          items:
-            $ref: '#/components/schemas/Ticket'
-        status:
-          type: string
-          enum:
-            - OPEN
-            - CLOSED
-      required:
-        - amount
-        - tickets
+        - reservations
     Custumer:
-      title: Custumer
+      title: Customer
       type: object
       x-tags:
         - Models
@@ -395,6 +408,10 @@ components:
         email:
           type: string
           format: email
+        name:
+          type: string
+        postcode:
+          type: string
       required:
         - email
     Order:
@@ -434,6 +451,7 @@ components:
           enum:
             - requires_payment_method
             - succeeded
+            - requires_confirmation
         amount:
           type: integer
       required:
@@ -441,6 +459,63 @@ components:
         - client_secret
         - status
         - amount
+    Quote:
+      title: Quote
+      type: object
+      x-tags:
+        - Models
+      properties:
+        base_price:
+          type: integer
+          description: the price before discounts and fixed costs
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
+        reservations:
+          type: object
+          description: The amount of facilities already reserved on this journey. The keys are the types of reservations
+          properties:
+            '1':
+              type: integer
+            '2':
+              type: integer
+        origin:
+          $ref: '#/components/schemas/LocationTime'
+        destination:
+          $ref: '#/components/schemas/LocationTime'
+    Vehicle:
+      title: Vehicle
+      type: object
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: integer
+        bicycle_spaces:
+          type: integer
+        seats:
+          type: integer
+        wheelchair_spaces:
+          type: integer
+    Trip:
+      title: Trip
+      type: object
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: integer
+        origin:
+          $ref: '#/components/schemas/Location'
+        destination:
+          $ref: '#/components/schemas/Location'
+        departure_time:
+          type: string
+          format: date-time
+        arrival_time:
+          type: string
+          format: date-time
+        vehicle:
+          $ref: '#/components/schemas/Vehicle'
 tags:
   - name: Models
   - name: Paths
