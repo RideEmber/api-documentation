@@ -165,11 +165,6 @@ paths:
           in: query
           name: discounts
           description: Any discounts they are eligible for. The discount parameter may be passed multiple times – once for each discount
-        - schema:
-            $ref: '#/components/schemas/Session'
-          in: header
-          name: x-session-id
-          required: true
       tags:
         - Paths
     parameters: []
@@ -420,13 +415,6 @@ components:
       x-tags:
         - Models
       description: Defines the accepted discount cards
-    Session:
-      type: string
-      title: Session
-      format: uuid
-      description: A uuid that is created by the client to identify the session
-      x-tags:
-        - Models
     Ticket:
       title: Ticket
       type: object
