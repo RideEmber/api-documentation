@@ -309,17 +309,15 @@ paths:
                     items:
                       $ref: '#/components/schemas/Pass'
                   prices:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        origin:
-                          $ref: '#/components/schemas/Location'
-                        destination:
-                          $ref: '#/components/schemas/Location'
-                        base_price:
-                          type: integer
-                          description: the price before discounts and fixed costs
+                    type: object
+                    description: A map of maps that contains the prices of all possible combinations of origin and destination
+                    properties:
+                      '{origin_id}':
+                        type: object
+                        properties:
+                          '{destination_id}':
+                            type: integer
+                            description: the price before discounts and fixed costs
                   vehicle:
                     $ref: '#/components/schemas/Vehicle'
       operationId: get-trip-info
