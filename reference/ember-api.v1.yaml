@@ -300,15 +300,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  stops:
+                  locations:
                     type: array
                     items:
                       $ref: '#/components/schemas/LocationTime'
                   passes:
                     type: array
+                    description: 'In this endpoint, the only customer data available is the name.'
                     items:
                       $ref: '#/components/schemas/Pass'
-                  prices:
+                  journeys:
                     type: object
                     description: A map of maps that contains the prices of all possible combinations of origin and destination
                     properties:
@@ -316,8 +317,20 @@ paths:
                         type: object
                         properties:
                           '{destination_id}':
-                            type: integer
+                            type: object
                             description: the price before discounts and fixed costs
+                            properties:
+                              reservations:
+                                type: object
+                                properties:
+                                  seats:
+                                    type: integer
+                                  wheelchairs:
+                                    type: integer
+                                  bikes:
+                                    type: integer
+                              price:
+                                type: integer
                   vehicle:
                     $ref: '#/components/schemas/Vehicle'
       operationId: get-trip-info
@@ -380,6 +393,7 @@ components:
             - SEAT
             - WHEELCHAIR
             - BIKE
+          description: 'The type of reservation: 1) seat 2) wheelchair ...'
       required:
         - origin
         - destination
@@ -401,6 +415,10 @@ components:
         departure_time:
           type: string
           format: date-time
+        allow_boarding:
+          type: boolean
+        allow_drop_off:
+          type: string
       required:
         - location_time_id
         - location
@@ -448,8 +466,6 @@ components:
           type: string
         postcode:
           type: string
-      required:
-        - email
     Order:
       title: Order
       type: object
