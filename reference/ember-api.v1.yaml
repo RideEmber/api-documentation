@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Ember API
   version: '1.0'
-  description: "A referance to all of Ember's API endpoints."
+  description: "A reference to all of Ember's API endpoints."
   contact:
     name: Ember
     url: 'https://www.ember.to'
