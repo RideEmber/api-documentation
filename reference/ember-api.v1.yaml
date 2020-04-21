@@ -92,7 +92,7 @@ paths:
                       description: null
           headers: {}
       operationId: get-locations
-      description: 'Get a list of possible stops to book a journey. the result is a list of `Location` objects, which includes groups of stops, such as cities.'
+      description: 'Get a list of possible stops to book a journey. The result is a list of `Location` objects. Note that `Location` objects may be groups of stops, such as cities or bus stations, or individual stops.'
       parameters: []
       tags:
         - Paths
@@ -111,47 +111,47 @@ paths:
                   $ref: '#/components/schemas/Quote'
               examples: {}
       operationId: get-quotes
-      description: "Search for possible journeys between locations. In future, journeys could include a change of bus but we don't support for now. Full journey information, including pricing, will be returned."
+      description: "Search for possible journeys between locations. In future, a journey could include a connection (i.e. a change of bus midway through the journey) but we don't support that for now. Full journey information will be returned, including pricing."
       parameters:
         - schema:
             type: integer
           example: 3
           in: query
           name: origin
-          description: The ID of the desired departure location
+          description: The departure Location ID
           required: true
         - schema:
             type: integer
           example: 10
           in: query
           name: destination
-          description: The ID of the desired destination location
+          description: The destination Location ID
           required: true
         - schema:
             type: string
             format: date-time
           in: query
           name: out_date_from
-          description: Datetime they would like to leave after in outbound trip
+          description: Datetime they would like to leave after for outbound trip
         - schema:
             type: string
             format: date-time
           example: '2019-12-01T17:30:00'
           in: query
           name: out_date_to
-          description: Datetime they would like to leave before in outbound trip
+          description: Datetime they would like to leave before for outbound trip
         - schema:
             type: string
             format: date-time
           in: query
           name: return_date_from
-          description: Datetime they would like to leave after in return trip
+          description: Datetime they would like to leave after for return trip
         - schema:
             type: string
             format: date-time
           in: query
           name: return_date_to
-          description: Datetime they would like to leave before in retrun trip
+          description: Datetime they would like to leave before for return trip
         - schema:
             type: integer
             minimum: 1
@@ -164,7 +164,7 @@ paths:
               $ref: '#/components/schemas/DiscountCards'
           in: query
           name: discounts
-          description: Any discounts they are eligible for. The discount parameter may be passed multiple times – once for each discount
+          description: A discount that should be taken into account – e.g. concession pass. The discount parameter may be passed multiple times for multiple discounts
       tags:
         - Paths
     parameters: []
@@ -242,7 +242,7 @@ paths:
         '200':
           description: OK
       operationId: get-trips
-      description: 'This endpoint returs a list of trips, based on conjunction of all given filter parameters. Thus, when called with no parameters, the endpint will return a list of all trip ids in the system.'
+      description: 'This endpoint returs a list of trips, filtered by the given parameters. When called with no parameters the endpoint will return a list of all available trips.'
       parameters:
         - schema:
             type: string
@@ -274,13 +274,13 @@ paths:
           example: 3
           in: query
           name: origin
-          description: Return only trips that originate from a location with this id
+          description: Filter to trips that start from this Location ID
         - schema:
             type: integer
           example: 10
           in: query
           name: destination
-          description: Return only trips that arrive to a location with this id at the end of the trip
+          description: Filter to trips that end at this Location ID
   '/trips/{id}':
     parameters:
       - schema:
