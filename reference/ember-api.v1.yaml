@@ -204,8 +204,8 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/Ticket'
-                custumer:
-                  $ref: '#/components/schemas/Custumer'
+                customer:
+                  $ref: '#/components/schemas/Customer'
                 method:
                   type: string
                   description: "either 'card' or payment method id"
@@ -226,7 +226,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
+                type: object
+                properties:
+                  payment_intent:
+                    $ref: '#/components/schemas/PaymentIntent'
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+                  paases:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pass'
       operationId: get-order-by-uid
       description: ''
   /trips:
@@ -277,6 +286,49 @@ paths:
           in: query
           name: destination
           description: Return only trips that arrive to a location with this id at the end of the trip
+  '/trips/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Get Trip Info
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stops:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LocationTime'
+                  passes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pass'
+                  prices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        origin:
+                          $ref: '#/components/schemas/Location'
+                        destination:
+                          $ref: '#/components/schemas/Location'
+                        base_price:
+                          type: integer
+                          description: the price before discounts and fixed costs
+                  vehicle:
+                    $ref: '#/components/schemas/Vehicle'
+      operationId: get-trip-info
+      description: ''
 components:
   schemas:
     Location:
@@ -329,8 +381,6 @@ components:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
-        code:
-          type: string
         type:
           type: string
           enum:
@@ -396,7 +446,7 @@ components:
             $ref: '#/components/schemas/DiscountCards'
       required:
         - reservations
-    Custumer:
+    Customer:
       title: Customer
       type: object
       x-tags:
@@ -427,15 +477,15 @@ components:
             $ref: '#/components/schemas/Ticket'
         payment_intent:
           $ref: '#/components/schemas/PaymentIntent'
-        custumer:
-          $ref: '#/components/schemas/Custumer'
+        customer:
+          $ref: '#/components/schemas/Customer'
         uid:
           type: string
           format: uuid
       required:
         - tickets
         - payment_intent
-        - custumer
+        - customer
     PaymentIntent:
       title: PaymentIntent
       type: object
@@ -516,6 +566,21 @@ components:
           format: date-time
         vehicle:
           $ref: '#/components/schemas/Vehicle'
+    Pass:
+      title: Pass
+      type: object
+      x-tags:
+        - Models
+      properties:
+        code:
+          type: string
+        customer:
+          $ref: '#/components/schemas/Customer'
+        reservations:
+          $ref: '#/components/schemas/Reservations'
+        created_at:
+          type: string
+          format: date-time
 tags:
   - name: Models
   - name: Paths
