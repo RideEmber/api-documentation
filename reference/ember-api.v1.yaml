@@ -307,7 +307,7 @@ paths:
                       $ref: '#/components/schemas/LocationTime'
                   passes:
                     type: object
-                    description: 'In this endpoint, the only customer data available is the name.'
+                    description: 'In this endpoint, the pass data is flattened for convenience'
                     properties:
                       origin:
                         type: integer
