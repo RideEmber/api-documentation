@@ -310,11 +310,9 @@ paths:
                     description: 'In this endpoint, the pass data is flattened for convenience'
                     properties:
                       origin:
-                        type: integer
-                        description: A location time id
+                        $ref: '#/components/schemas/LocationTime'
                       destination:
-                        type: integer
-                        description: A location time id
+                        $ref: '#/components/schemas/LocationTime'
                       adults:
                         type: integer
                       children:
