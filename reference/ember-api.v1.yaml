@@ -311,8 +311,10 @@ paths:
                     properties:
                       origin:
                         type: integer
+                        description: A location time id
                       destination:
                         type: integer
+                        description: A location time id
                       adults:
                         type: integer
                       children:
