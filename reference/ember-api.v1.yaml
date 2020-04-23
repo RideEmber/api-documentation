@@ -211,6 +211,7 @@ paths:
         name: uid
         in: path
         required: true
+        description: "Using uid beacuse we don't to expose the amount of orders and make them harder to find randomly."
     get:
       summary: Get Order by Id
       tags:
@@ -300,15 +301,34 @@ paths:
               schema:
                 type: object
                 properties:
-                  locations:
+                  location_times:
                     type: array
                     items:
                       $ref: '#/components/schemas/LocationTime'
                   passes:
-                    type: array
+                    type: object
                     description: 'In this endpoint, the only customer data available is the name.'
-                    items:
-                      $ref: '#/components/schemas/Pass'
+                    properties:
+                      origin:
+                        type: integer
+                      destination:
+                        type: integer
+                      adults:
+                        type: integer
+                      children:
+                        type: integer
+                      infants:
+                        type: integer
+                      concessions:
+                        type: integer
+                      wheelchairs:
+                        type: integer
+                      bikes:
+                        type: integer
+                      name:
+                        type: string
+                      code:
+                        type: string
                   journeys:
                     type: object
                     description: A map of maps that contains the prices of all possible combinations of origin and destination
@@ -329,8 +349,17 @@ paths:
                                     type: integer
                                   bikes:
                                     type: integer
-                              price:
-                                type: integer
+                              prices:
+                                type: object
+                                properties:
+                                  base_price:
+                                    type: integer
+                                  child_discount:
+                                    type: integer
+                                  infant_discount:
+                                    type: integer
+                                  concession_discount:
+                                    type: integer
                   vehicle:
                     $ref: '#/components/schemas/Vehicle'
       operationId: get-trip-info
@@ -365,6 +394,7 @@ components:
       required:
         - id
         - name
+      title: Location
     Reservations:
       title: Reservations
       type: object
@@ -422,9 +452,10 @@ components:
       required:
         - location_time_id
         - location
+      title: Location Time
     DiscountCards:
       type: string
-      title: DiscountCards
+      title: Discount Cards
       enum:
         - SCOT_CONCESSION
         - SCOT_UNDER_18
@@ -436,7 +467,7 @@ components:
       type: object
       x-tags:
         - Models
-      description: 'A ticket is a reservation for one seat in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
+      description: 'A ticket is a reservation for one seat (or other facility) in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
       properties:
         price:
           type: number
@@ -489,7 +520,7 @@ components:
         - payment_intent
         - customer
     PaymentIntent:
-      title: PaymentIntent
+      title: Payment Intent
       type: object
       x-tags:
         - Models
@@ -573,16 +604,19 @@ components:
       type: object
       x-tags:
         - Models
+      description: 'A group of tickets with the same start and final points. A pass may include tickets that contain a connection, thus the top level origin and destination reflect the entire journey (i.e. the start and final points).'
       properties:
         code:
           type: string
-        customer:
-          $ref: '#/components/schemas/Customer'
-        reservations:
-          $ref: '#/components/schemas/Reservations'
+        tickets:
+          $ref: '#/components/schemas/Ticket'
         created_at:
           type: string
           format: date-time
+        origin:
+          $ref: '#/components/schemas/LocationTime'
+        destination:
+          $ref: '#/components/schemas/LocationTime'
 tags:
   - name: Models
   - name: Paths
