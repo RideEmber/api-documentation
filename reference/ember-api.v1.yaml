@@ -301,10 +301,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  location_times:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/LocationTime'
                   passes:
                     type: object
                     description: 'In this endpoint, the pass data is flattened for convenience'
@@ -329,7 +325,23 @@ paths:
                         type: string
                       code:
                         type: string
-                  journeys:
+                  reservations:
+                    type: object
+                    description: A map of maps that contains the reservations of all possible combinations of origin and destination
+                    properties:
+                      '{origin_id}':
+                        type: object
+                        properties:
+                          '{destination_id}':
+                            type: object
+                            properties:
+                              seats:
+                                type: integer
+                              wheelchairs:
+                                type: integer
+                              bikes:
+                                type: integer
+                  prices:
                     type: object
                     description: A map of maps that contains the prices of all possible combinations of origin and destination
                     properties:
@@ -338,32 +350,49 @@ paths:
                         properties:
                           '{destination_id}':
                             type: object
-                            description: the price before discounts and fixed costs
                             properties:
-                              reservations:
-                                type: object
-                                properties:
-                                  seats:
-                                    type: integer
-                                  wheelchairs:
-                                    type: integer
-                                  bikes:
-                                    type: integer
-                              prices:
-                                type: object
-                                properties:
-                                  base_price:
-                                    type: integer
-                                  child_discount:
-                                    type: integer
-                                  infant_discount:
-                                    type: integer
-                                  concession_discount:
-                                    type: integer
+                              adults:
+                                type: integer
+                              children:
+                                type: integer
+                              infants:
+                                type: integer
+                              concessions:
+                                type: integer
+                              wheelchairs:
+                                type: integer
+                              bikes:
+                                type: integer
                   vehicle:
                     $ref: '#/components/schemas/Vehicle'
       operationId: get-trip-info
-      description: ''
+      description: 'Specify the info you want to recive by setting query params, or set `all=true` to get all the available trip info.'
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: all
+          description: get all available trip info
+        - schema:
+            type: boolean
+          in: query
+          name: passes
+          description: get passes info
+        - schema:
+            type: boolean
+          in: query
+          name: reservations
+          description: get reservations info
+        - schema:
+            type: boolean
+          in: query
+          name: prices
+          description: get prices info
+        - schema:
+            type: boolean
+          in: query
+          name: vehicle
+          description: get vehicle info
 components:
   schemas:
     Location:
