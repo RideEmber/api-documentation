@@ -301,33 +301,37 @@ paths:
               schema:
                 type: object
                 properties:
-                  passes:
+                  manifests:
                     type: object
-                    description: 'In this endpoint, the pass data is flattened for convenience'
+                    description: 'This object contains passes, grouped by location time of origin'
                     properties:
-                      origin:
-                        $ref: '#/components/schemas/LocationTime'
-                      destination:
-                        $ref: '#/components/schemas/LocationTime'
-                      adults:
-                        type: integer
-                      children:
-                        type: integer
-                      infants:
-                        type: integer
-                      concessions:
-                        type: integer
-                      wheelchairs:
-                        type: integer
-                      bikes:
-                        type: integer
-                      name:
-                        type: string
-                      code:
-                        type: string
-                  reservations:
+                      '{origin_id}':
+                        type: object
+                        properties:
+                          '{pass_code}':
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              origin:
+                                $ref: '#/components/schemas/LocationTime'
+                              destination:
+                                $ref: '#/components/schemas/LocationTime'
+                              adults:
+                                type: integer
+                              children:
+                                type: integer
+                              young_children:
+                                type: integer
+                              concessions:
+                                type: integer
+                              wheelchairs:
+                                type: integer
+                              bicycles:
+                                type: integer
+                  availability:
                     type: object
-                    description: A map of maps that contains the reservations of all possible combinations of origin and destination
+                    description: 'A map of maps that contains the available facilities of all possible combinations of origin and destination. '
                     properties:
                       '{origin_id}':
                         type: object
@@ -339,7 +343,7 @@ paths:
                                 type: integer
                               wheelchairs:
                                 type: integer
-                              bikes:
+                              bicycles:
                                 type: integer
                   prices:
                     type: object
@@ -355,16 +359,20 @@ paths:
                                 type: integer
                               children:
                                 type: integer
-                              infants:
+                              young_children:
                                 type: integer
                               concessions:
                                 type: integer
                               wheelchairs:
                                 type: integer
-                              bikes:
+                              bicycles:
                                 type: integer
                   vehicle:
                     $ref: '#/components/schemas/Vehicle'
+                  location_times:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LocationTime'
       operationId: get-trip-info
       description: 'Specify the info you want to recive by setting query params, or set `all=true` to get all the available trip info.'
       parameters:
@@ -376,13 +384,13 @@ paths:
         - schema:
             type: boolean
           in: query
-          name: passes
-          description: get passes info
+          name: manifests
+          description: get passes grouped by location times of origin
         - schema:
             type: boolean
           in: query
-          name: reservations
-          description: get reservations info
+          name: availability
+          description: get the availability for each possible journey
         - schema:
             type: boolean
           in: query
@@ -393,6 +401,11 @@ paths:
           in: query
           name: vehicle
           description: get vehicle info
+        - schema:
+            type: boolean
+          in: query
+          name: location_times
+          description: get list of location times
 components:
   schemas:
     Location:
@@ -602,11 +615,11 @@ components:
       properties:
         id:
           type: integer
-        bicycle_spaces:
+        bicycles:
           type: integer
         seats:
           type: integer
-        wheelchair_spaces:
+        wheelchairs:
           type: integer
     Trip:
       title: Trip
