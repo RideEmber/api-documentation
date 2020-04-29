@@ -374,7 +374,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/LocationTime'
       operationId: get-trip-info
-      description: 'Specify the info you want to recive by setting query params, or set `all=true` to get all the available trip info.'
+      description: 'Specify the info you want to receive by setting query parameters. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
       parameters:
         - schema:
             type: boolean
