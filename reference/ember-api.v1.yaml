@@ -211,9 +211,9 @@ paths:
         name: uid
         in: path
         required: true
-        description: "Using uid beacuse we don't to expose the amount of orders and make them harder to find randomly."
+        description: The uid allows access to the order without authentication. This is deliberate since the endpoint does not expose highly sensitive data and it adds convenience
     get:
-      summary: Get Order by Id
+      summary: Get Order by Unique ID
       tags:
         - Paths
       responses:
@@ -228,7 +228,7 @@ paths:
                     $ref: '#/components/schemas/PaymentIntent'
                   customer:
                     $ref: '#/components/schemas/Customer'
-                  paases:
+                  passes:
                     type: array
                     items:
                       $ref: '#/components/schemas/Pass'
