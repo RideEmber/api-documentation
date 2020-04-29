@@ -211,7 +211,7 @@ paths:
         name: uid
         in: path
         required: true
-        description: The uid allows access to the order without authentication. This is deliberate since the endpoint does not expose highly sensitive data and it adds convenience
+        description: The uid allows access to the order without authentication. This is a deliberate convenience feature since the endpoint does not expose personal data
     get:
       summary: Get Order by Unique ID
       tags:
