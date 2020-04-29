@@ -204,6 +204,7 @@ paths:
                 method:
                   type: string
                   description: "either 'card' or payment method id"
+      description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
   '/orders/{uid}':
     parameters:
       - schema:
@@ -211,7 +212,7 @@ paths:
         name: uid
         in: path
         required: true
-        description: The uid allows access to the order without authentication. This is a deliberate convenience feature since the endpoint does not expose personal data
+        description: ''
     get:
       summary: Get Order by Unique ID
       tags:
@@ -233,7 +234,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Pass'
       operationId: get-order-by-uid
-      description: ''
+      description: 'Get the details of an order from a uid, without further authentication. Using a UID without authentication is a deliberate convenience feature that allows for things like sharing order URLs. Order UIDs should be kept private but this endpoint does not expose any personal data so the risk is limited.'
   /trips:
     get:
       summary: Get Trips
