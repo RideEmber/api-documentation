@@ -467,6 +467,8 @@ components:
         - UNDER_18
         - UNDER_5
         - OVER_65
+      x-tags:
+        - Models
     Ticket:
       title: Ticket
       type: object
