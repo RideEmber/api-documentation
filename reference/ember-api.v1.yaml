@@ -461,13 +461,12 @@ components:
       title: Location Time
     Discount:
       type: string
-      title: Discount Cards
+      title: Discount
+      description: Defines the accepted discounts
       enum:
-        - SCOT_CONCESSION
-        - SCOT_UNDER_18
-      x-tags:
-        - Models
-      description: Defines the accepted discount cards
+        - UNDER_18
+        - UNDER_5
+        - OVER_65
     Ticket:
       title: Ticket
       type: object
