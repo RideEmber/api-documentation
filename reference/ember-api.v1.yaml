@@ -109,7 +109,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Quote'
-              examples: {}
       operationId: get-quotes
       description: "Search for possible journeys between locations. In future, a journey could include a connection (i.e. a change of bus midway through the journey) but we don't support that for now. Full journey information will be returned, including pricing."
       parameters:
@@ -136,7 +135,6 @@ paths:
         - schema:
             type: string
             format: date-time
-          example: '2019-12-01T17:30:00'
           in: query
           name: out_date_to
           description: Datetime they would like to leave before for outbound trip
@@ -161,7 +159,7 @@ paths:
         - schema:
             type: string
             items:
-              $ref: '#/components/schemas/DiscountCards'
+              $ref: '#/components/schemas/Discount'
           in: query
           name: discounts
           description: A discount that should be taken into account – e.g. concession pass. The discount parameter may be passed multiple times for multiple discounts
@@ -184,7 +182,12 @@ paths:
                   errors:
                     type: array
                     items:
-                      type: string
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        reservation:
+                          $ref: '#/components/schemas/Reservation'
                   order:
                     $ref: '#/components/schemas/Order'
       operationId: post-orders
@@ -196,9 +199,16 @@ paths:
               type: object
               properties:
                 tickets:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Ticket'
+                  type: object
+                  properties:
+                    outbound:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Ticket'
+                    return:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Ticket'
                 customer:
                   $ref: '#/components/schemas/Customer'
                 method:
@@ -223,16 +233,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  payment_intent:
-                    $ref: '#/components/schemas/PaymentIntent'
-                  customer:
-                    $ref: '#/components/schemas/Customer'
-                  passes:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Pass'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pass'
       operationId: get-order-by-uid
       description: 'Get the details of an order from a uid, without further authentication. Using a UID without authentication is a deliberate convenience feature that allows for things like sharing order URLs. Order UIDs should be kept private but this endpoint does not expose any personal data so the risk is limited.'
   /trips:
@@ -243,6 +246,12 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
       operationId: get-trips
       description: 'This endpoint returs a list of trips, filtered by the given parameters. When called with no parameters the endpoint will return a list of all available trips.'
       parameters:
@@ -255,7 +264,6 @@ paths:
         - schema:
             type: string
             format: date-time
-          example: '2019-12-01T17:30:00'
           in: query
           name: departure-time-to
           description: Filter out trips that depart after this datetime
@@ -302,34 +310,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  manifests:
-                    type: object
+                  passes:
+                    type: array
                     description: 'This object contains passes, grouped by location time of origin'
-                    properties:
-                      '{origin_id}':
-                        type: object
-                        properties:
-                          '{pass_code}':
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              origin:
-                                $ref: '#/components/schemas/LocationTime'
-                              destination:
-                                $ref: '#/components/schemas/LocationTime'
-                              adults:
-                                type: integer
-                              children:
-                                type: integer
-                              young_children:
-                                type: integer
-                              concessions:
-                                type: integer
-                              wheelchairs:
-                                type: integer
-                              bicycles:
-                                type: integer
+                    items:
+                      $ref: '#/components/schemas/Pass'
                   availability:
                     type: object
                     description: 'A map of maps that contains the available facilities of all possible combinations of origin and destination. '
@@ -338,14 +323,7 @@ paths:
                         type: object
                         properties:
                           '{destination_id}':
-                            type: object
-                            properties:
-                              seats:
-                                type: integer
-                              wheelchairs:
-                                type: integer
-                              bicycles:
-                                type: integer
+                            $ref: '#/components/schemas/Availability'
                   prices:
                     type: object
                     description: A map of maps that contains the prices of all possible combinations of origin and destination
@@ -354,23 +332,8 @@ paths:
                         type: object
                         properties:
                           '{destination_id}':
-                            type: object
-                            properties:
-                              adults:
-                                type: integer
-                              children:
-                                type: integer
-                              young_children:
-                                type: integer
-                              concessions:
-                                type: integer
-                              wheelchairs:
-                                type: integer
-                              bicycles:
-                                type: integer
-                  vehicle:
-                    $ref: '#/components/schemas/Vehicle'
-                  location_times:
+                            $ref: '#/components/schemas/Prices'
+                  route:
                     type: array
                     items:
                       $ref: '#/components/schemas/LocationTime'
@@ -438,10 +401,10 @@ components:
         - id
         - name
       title: Location
-    Reservations:
-      title: Reservations
+    Reservation:
+      title: Reservation
       type: object
-      description: 'A reservations of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
+      description: 'A reservation of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
       x-examples:
         Dundee to Edinburgh:
           id: 1367
@@ -496,7 +459,7 @@ components:
         - location_time_id
         - location
       title: Location Time
-    DiscountCards:
+    Discount:
       type: string
       title: Discount Cards
       enum:
@@ -517,11 +480,11 @@ components:
         reservations:
           type: array
           items:
-            $ref: '#/components/schemas/Reservations'
+            $ref: '#/components/schemas/Reservation'
         discounts:
           type: array
           items:
-            $ref: '#/components/schemas/DiscountCards'
+            $ref: '#/components/schemas/Discount'
       required:
         - reservations
     Customer:
@@ -547,63 +510,27 @@ components:
         - Models
       description: 'An order is an immutable list of tickets for purchase with a single payment reference. Once the payment is completed successfully, all the tickets in the order are considered to be "booked". Note that an order is a finalised basket, but creating an order does not depend on previously creating a basket.'
       properties:
-        tickets:
+        passes:
           type: array
           items:
-            $ref: '#/components/schemas/Ticket'
-        payment_intent:
-          $ref: '#/components/schemas/PaymentIntent'
-        customer:
-          $ref: '#/components/schemas/Customer'
+            $ref: '#/components/schemas/Pass'
+        client_secret:
+          type: string
         uid:
           type: string
           format: uuid
       required:
-        - tickets
-        - payment_intent
-        - customer
-    PaymentIntent:
-      title: Payment Intent
-      type: object
-      x-tags:
-        - Models
-      properties:
-        pi_id:
-          type: string
-        client_secret:
-          type: string
-        status:
-          type: string
-          enum:
-            - requires_payment_method
-            - succeeded
-            - requires_confirmation
-        amount:
-          type: integer
-      required:
-        - pi_id
-        - client_secret
-        - status
-        - amount
+        - passes
     Quote:
       title: Quote
       type: object
       x-tags:
         - Models
       properties:
-        base_price:
-          type: integer
-          description: the price before discounts and fixed costs
-        vehicle:
-          $ref: '#/components/schemas/Vehicle'
-        reservations:
-          type: object
-          description: The amount of facilities already reserved on this journey. The keys are the types of reservations
-          properties:
-            '1':
-              type: integer
-            '2':
-              type: integer
+        prices:
+          $ref: '#/components/schemas/Prices'
+        availability:
+          $ref: '#/components/schemas/Availability'
         origin:
           $ref: '#/components/schemas/LocationTime'
         destination:
@@ -616,11 +543,11 @@ components:
       properties:
         id:
           type: integer
-        bicycles:
+        bicycle:
           type: integer
-        seats:
+        seat:
           type: integer
-        wheelchairs:
+        wheelchair:
           type: integer
     Trip:
       title: Trip
@@ -647,12 +574,12 @@ components:
       type: object
       x-tags:
         - Models
-      description: 'A group of tickets with the same start and final points. A pass may include tickets that contain a connection, thus the top level origin and destination reflect the entire journey (i.e. the start and final points).'
+      description: A pass is a group of tickets that share the same start and final points. A pass may include tickets that contain a connection.
       properties:
         code:
           type: string
         tickets:
-          $ref: '#/components/schemas/Ticket'
+          $ref: '#/components/schemas/TicketGroup'
         created_at:
           type: string
           format: date-time
@@ -660,6 +587,58 @@ components:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
+        name:
+          type: string
+    Prices:
+      title: Prices
+      type: object
+      x-tags:
+        - Models
+      properties:
+        adult:
+          type: integer
+        child:
+          type: integer
+        young_child:
+          type: integer
+        concession:
+          type: integer
+        wheelchair:
+          type: integer
+        bicycle:
+          type: integer
+      description: A map of prices for all resouces and discounts
+    Availability:
+      title: Availability
+      type: object
+      x-tags:
+        - Models
+      properties:
+        seat:
+          type: number
+        wheelchair:
+          type: integer
+        bicycle:
+          type: integer
+    TicketGroup:
+      title: Ticket Group
+      type: object
+      x-tags:
+        - Models
+      description: A simple map of the number of each type of resource and discount in a pass.
+      properties:
+        adults:
+          type: integer
+        bicycles:
+          type: integer
+        children:
+          type: integer
+        concessions:
+          type: integer
+        wheelchairs:
+          type: integer
+        young_children:
+          type: integer
 tags:
   - name: Models
   - name: Paths
