@@ -716,8 +716,6 @@ components:
           type: string
       required:
         - type
-        - verification_type
-        - card_type
 tags:
   - name: Models
   - name: Paths
