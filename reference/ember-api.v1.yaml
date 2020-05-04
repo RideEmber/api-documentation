@@ -698,6 +698,8 @@ components:
           enum:
             - SCOT_CONCESSION
             - CREDIT_CARD
+            - PASS_CODE
+            - OTHER_ID
         card_number:
           type: integer
         expire_date:
@@ -714,6 +716,8 @@ components:
           type: string
       required:
         - type
+        - verification_type
+        - card_type
 tags:
   - name: Models
   - name: Paths
