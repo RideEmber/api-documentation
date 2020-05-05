@@ -310,11 +310,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  passes:
-                    type: array
-                    description: 'This object contains passes, grouped by location time of origin'
-                    items:
-                      $ref: '#/components/schemas/Pass'
                   availability:
                     type: object
                     description: 'A map of maps that contains the available facilities of all possible combinations of origin and destination. '
@@ -337,6 +332,11 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/LocationTime'
+                  passes:
+                    type: array
+                    description: 'This object contains passes, grouped by location time of origin'
+                    items:
+                      $ref: '#/components/schemas/Pass'
       operationId: get-trip-info
       description: 'Specify the info you want to receive by setting query parameters. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
       parameters:
@@ -445,39 +445,6 @@ components:
         - id
         - name
       title: Location
-    Reservation:
-      title: Reservation
-      type: object
-      description: 'A reservation of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
-      x-examples:
-        Dundee to Edinburgh:
-          id: 1367
-          origin:
-            departure: '2020-05-19T23:00:00Z'
-            location_id: 1
-            stop_name: Dundee (Greenmarket)
-          destination:
-            arrival: '2020-05-20T00:45:00Z'
-            location_id: 5
-            location_name: Edinburgh (Melville Street)
-      x-tags:
-        - Models
-      properties:
-        origin:
-          $ref: '#/components/schemas/LocationTime'
-        destination:
-          $ref: '#/components/schemas/LocationTime'
-        type:
-          type: string
-          enum:
-            - SEAT
-            - WHEELCHAIR
-            - BIKE
-          description: 'The type of reservation: 1) seat 2) wheelchair ...'
-      required:
-        - origin
-        - destination
-        - type
     LocationTime:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
@@ -503,16 +470,6 @@ components:
         - location_time_id
         - location
       title: Location Time
-    Discount:
-      type: string
-      title: Discount
-      description: Defines the accepted discounts
-      enum:
-        - UNDER_18
-        - UNDER_5
-        - OVER_65
-      x-tags:
-        - Models
     Ticket:
       title: Ticket
       type: object
@@ -555,15 +512,15 @@ components:
         - Models
       description: 'An order is a list of passes for purchase with a single payment reference. Once the payment is completed successfully, all the tickets in the order are considered to be "booked".'
       properties:
+        uid:
+          type: string
+          format: uuid
+        client_secret:
+          type: string
         passes:
           type: array
           items:
             $ref: '#/components/schemas/Pass'
-        client_secret:
-          type: string
-        uid:
-          type: string
-          format: uuid
       required:
         - passes
     Quote:
@@ -572,14 +529,14 @@ components:
       x-tags:
         - Models
       properties:
-        prices:
-          $ref: '#/components/schemas/Prices'
-        availability:
-          $ref: '#/components/schemas/Availability'
         origin:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
+        availability:
+          $ref: '#/components/schemas/Availability'
+        prices:
+          $ref: '#/components/schemas/Prices'
     Vehicle:
       title: Vehicle
       type: object
@@ -588,11 +545,11 @@ components:
       properties:
         id:
           type: integer
-        bicycle:
+        wheelchair:
           type: integer
         seat:
           type: integer
-        wheelchair:
+        bicycle:
           type: integer
     Trip:
       title: Trip
@@ -634,27 +591,71 @@ components:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
+        confirmation:
+          $ref: '#/components/schemas/PassConfirmation'
         name:
           type: string
-    Prices:
-      title: Prices
+    PassConfirmation:
+      title: Pass Confirmation
       type: object
       x-tags:
         - Models
+      description: Used with the endpoint POST passes.
       properties:
-        adult:
+        type:
+          type: string
+          enum:
+            - CANCEL
+            - CHECKIN
+          description: Indicates if this pass is cancelled or used
+        verification_type:
+          type: string
+          enum:
+            - MANUAL
+            - AUTOMATIC
+          description: Indicates if the driver verified the pass manually or by reader (NFC or other)
+        card_type:
+          type: string
+          enum:
+            - SCOT_CONCESSION
+            - CREDIT_CARD
+            - PASS_CODE
+            - OTHER_ID
+        card_number:
           type: integer
-        child:
+        expire_date:
+          type: string
+          minLength: 4
+          maxLength: 4
+        name_on_card:
+          type: string
+        number_of_people_covered:
           type: integer
-        young_child:
+        blob:
+          type: string
+        warnings:
+          type: string
+      required:
+        - type
+    TicketGroup:
+      title: Ticket Group
+      type: object
+      x-tags:
+        - Models
+      description: A simple map of the number of each type of resource and discount in a pass.
+      properties:
+        adults:
           type: integer
-        concession:
+        bicycles:
           type: integer
-        wheelchair:
+        children:
           type: integer
-        bicycle:
+        concessions:
           type: integer
-      description: A map of prices for all resouces and discounts
+        wheelchairs:
+          type: integer
+        young_children:
+          type: integer
     Availability:
       title: Availability
       type: object
@@ -667,12 +668,11 @@ components:
           type: integer
         bicycle:
           type: integer
-    TicketGroup:
-      title: Ticket Group
+    Prices:
+      title: Prices
       type: object
       x-tags:
         - Models
-      description: A simple map of the number of each type of resource and discount in a pass.
       properties:
         adult:
           type: integer
@@ -680,18 +680,58 @@ components:
           type: integer
         child:
           type: integer
+        young_child:
+          type: integer
         concession:
           type: integer
         wheelchair:
           type: integer
-        young_child:
-          type: integer
-    BoardingConfirmation:
-      title: Boarding Confirmation
-      type: object
+      description: A map of prices for all resources and discounts
+    Discount:
+      type: string
+      title: Discount
+      description: Defines the accepted discounts
+      enum:
+        - UNDER_18
+        - UNDER_5
+        - OVER_65
       x-tags:
         - Models
-      description: Used with the endpoint POST passes.
+    Reservation:
+      title: Reservation
+      type: object
+      description: 'A reservation of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
+      x-examples:
+        Dundee to Edinburgh:
+          id: 1367
+          origin:
+            departure: '2020-05-19T23:00:00Z'
+            location_id: 1
+            stop_name: Dundee (Greenmarket)
+          destination:
+            arrival: '2020-05-20T00:45:00Z'
+            location_id: 5
+            location_name: Edinburgh (Melville Street)
+      x-tags:
+        - Models
+      properties:
+        origin:
+          $ref: '#/components/schemas/LocationTime'
+        destination:
+          $ref: '#/components/schemas/LocationTime'
+        type:
+          type: string
+          enum:
+            - SEAT
+            - WHEELCHAIR
+            - BIKE
+          description: 'The type of reservation: 1) seat 2) wheelchair ...'
+      required:
+        - origin
+        - destination
+        - type
+    BoardingConfirmation:
+      title: Boarding Confirmation
       properties:
         verification_type:
           type: string
@@ -735,6 +775,9 @@ components:
         - verification_type
         - verification_instrument
         - boarding_date
+      x-tags:
+        - Models
+      description: ''
 tags:
   - name: Models
   - name: Paths
