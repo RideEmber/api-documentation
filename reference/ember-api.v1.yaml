@@ -359,7 +359,7 @@ paths:
             type: boolean
           in: query
           name: prices
-          description: get prices info
+          description: 'Get prices between all combinations of location times. On board prices are returned, including the fee'
         - schema:
             type: boolean
           in: query
@@ -573,8 +573,6 @@ components:
         - Models
       description: A pass is a group of tickets that share the same start and final points. A pass may include tickets that contain a connection.
       properties:
-        id:
-          type: integer
         code:
           type: string
         tickets:
@@ -588,6 +586,8 @@ components:
           $ref: '#/components/schemas/LocationTime'
         name:
           type: string
+        id:
+          type: integer
     TicketGroup:
       title: Ticket Group
       type: object
@@ -627,8 +627,6 @@ components:
       properties:
         adult:
           type: integer
-        bicycle:
-          type: integer
         child:
           type: integer
         young_child:
@@ -636,6 +634,8 @@ components:
         concession:
           type: integer
         wheelchair:
+          type: integer
+        bicycle:
           type: integer
       description: A map of prices for all resources and discounts
     Discount:
@@ -683,6 +683,10 @@ components:
         - type
     BoardingConfirmation:
       title: Boarding Confirmation
+      x-tags:
+        - Models
+      description: ''
+      type: object
       properties:
         verification_type:
           type: string
@@ -702,7 +706,7 @@ components:
           format: date-time
         card_number:
           type: string
-        expire_date:
+        expiry_date:
           type: string
           minLength: 4
           maxLength: 4
@@ -726,9 +730,6 @@ components:
         - verification_type
         - verification_instrument
         - boarding_date
-      x-tags:
-        - Models
-      description: ''
 tags:
   - name: Models
   - name: Paths
