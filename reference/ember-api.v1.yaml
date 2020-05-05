@@ -390,17 +390,29 @@ paths:
                       properties:
                         type:
                           type: string
-                        pass:
-                          $ref: '#/components/schemas/Pass'
+                        payload:
+                          type: object
       operationId: post-passes
-      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. For online bookings, the driver can update an existing pass status to `CANCEL` or `CHECKIN`. Partial checkin is done by spliting a pass into two passes. For onboard sales, the driver creates a new pass with a `CHECKIN` status upon payment confirmation.'
+      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. For online bookings, the driver can update an existing pass status to `CANCEL` or `CHECKIN`. When submitting a partial pass for checkin, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass with a `CHECKIN` status upon payment confirmation.'
       requestBody:
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Pass'
+                type: object
+                properties:
+                  action:
+                    type: string
+                    enum:
+                      - CANCEL
+                      - CHECKIN
+                  pass:
+                    $ref: '#/components/schemas/Pass'
+                  boarding_data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BoardingConfirmation'
     parameters: []
 components:
   schemas:
@@ -609,6 +621,8 @@ components:
         - Models
       description: A pass is a group of tickets that share the same start and final points. A pass may include tickets that contain a connection.
       properties:
+        id:
+          type: integer
         code:
           type: string
         tickets:
@@ -622,8 +636,6 @@ components:
           $ref: '#/components/schemas/LocationTime'
         name:
           type: string
-        confirmation:
-          $ref: '#/components/schemas/PassConfirnation'
     Prices:
       title: Prices
       type: object
@@ -662,46 +674,43 @@ components:
         - Models
       description: A simple map of the number of each type of resource and discount in a pass.
       properties:
-        adults:
+        adult:
           type: integer
-        bicycles:
+        bicycle:
           type: integer
-        children:
+        child:
           type: integer
-        concessions:
+        concession:
           type: integer
-        wheelchairs:
+        wheelchair:
           type: integer
-        young_children:
+        young_child:
           type: integer
-    PassConfirnation:
-      title: Pass Confirmation
+    BoardingConfirmation:
+      title: Boarding Confirmation
       type: object
       x-tags:
         - Models
       description: Used with the endpoint POST passes.
       properties:
-        type:
-          type: string
-          enum:
-            - CANCEL
-            - CHECKIN
-          description: Indicates if this pass is cancelled or used
         verification_type:
           type: string
           enum:
             - MANUAL
             - AUTOMATIC
-          description: Idicates if the driver verified the pass manually or by reader (NFC or other)
-        card_type:
+          description: Indicates if the driver verified the pass manually or by reader (NFC or other)
+        verification_instrument:
           type: string
           enum:
             - SCOT_CONCESSION
             - CREDIT_CARD
             - PASS_CODE
             - OTHER_ID
+        boarding_date:
+          type: string
+          format: date-time
         card_number:
-          type: integer
+          type: string
         expire_date:
           type: string
           minLength: 4
@@ -710,12 +719,22 @@ components:
           type: string
         number_of_people_covered:
           type: integer
-        blob:
+        json_blob:
           type: string
+          description: Has to be a valid JSON string
         warnings:
-          type: string
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
       required:
-        - type
+        - verification_type
+        - verification_instrument
+        - boarding_date
 tags:
   - name: Models
   - name: Paths
