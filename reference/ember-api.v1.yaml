@@ -393,7 +393,7 @@ paths:
                         payload:
                           type: object
       operationId: post-passes
-      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. For online bookings, the driver can update an existing pass status to `CANCEL` or `CHECKIN`. When submitting a partial pass for checkin, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass with a `CHECKIN` status upon payment confirmation.'
+      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. When submitting a partial pass for check-in, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass  upon payment confirmation.'
       requestBody:
         content:
           application/json:
@@ -402,11 +402,6 @@ paths:
               items:
                 type: object
                 properties:
-                  action:
-                    type: string
-                    enum:
-                      - CANCEL
-                      - CHECKIN
                   pass:
                     $ref: '#/components/schemas/Pass'
                   boarding_data:
@@ -591,52 +586,8 @@ components:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
-        confirmation:
-          $ref: '#/components/schemas/PassConfirmation'
         name:
           type: string
-    PassConfirmation:
-      title: Pass Confirmation
-      type: object
-      x-tags:
-        - Models
-      description: Used with the endpoint POST passes.
-      properties:
-        type:
-          type: string
-          enum:
-            - CANCEL
-            - CHECKIN
-          description: Indicates if this pass is cancelled or used
-        verification_type:
-          type: string
-          enum:
-            - MANUAL
-            - AUTOMATIC
-          description: Indicates if the driver verified the pass manually or by reader (NFC or other)
-        card_type:
-          type: string
-          enum:
-            - SCOT_CONCESSION
-            - CREDIT_CARD
-            - PASS_CODE
-            - OTHER_ID
-        card_number:
-          type: integer
-        expire_date:
-          type: string
-          minLength: 4
-          maxLength: 4
-        name_on_card:
-          type: string
-        number_of_people_covered:
-          type: integer
-        blob:
-          type: string
-        warnings:
-          type: string
-      required:
-        - type
     TicketGroup:
       title: Ticket Group
       type: object
