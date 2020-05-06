@@ -338,7 +338,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Pass'
       operationId: get-trip-info
-      description: 'Specify the info you want to receive by setting query parameters. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
+      description: 'Use the query parameters to specify the info you want to receive. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
       parameters:
         - schema:
             type: boolean
