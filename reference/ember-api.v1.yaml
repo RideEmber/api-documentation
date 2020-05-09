@@ -333,7 +333,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Pass'
       operationId: get-trip-info
-      description: 'Specify the info you want to receive by setting query parameters. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
+      description: 'Use the query parameters to specify the info you want to receive. You can set multiple parameters to get any combination of data, or set `all=true` to get all the available trip info.'
       parameters:
         - schema:
             type: boolean
@@ -354,7 +354,7 @@ paths:
             type: boolean
           in: query
           name: prices
-          description: get prices info for each possible journey
+          description: 'Get prices between all combinations of location times. On board prices are returned, including the fee'
         - schema:
             type: boolean
           in: query
@@ -534,8 +534,6 @@ components:
         - Models
       description: A pass is a group of tickets that share the same start and final points. A pass may include tickets that contain a connection.
       properties:
-        id:
-          type: integer
         code:
           type: string
         name:
@@ -584,8 +582,6 @@ components:
       properties:
         adult:
           type: integer
-        bicycle:
-          type: integer
         child:
           type: integer
         young_child:
@@ -593,6 +589,8 @@ components:
         concession:
           type: integer
         wheelchair:
+          type: integer
+        bicycle:
           type: integer
       description: A map of prices for all resources and discounts
     Discount:
