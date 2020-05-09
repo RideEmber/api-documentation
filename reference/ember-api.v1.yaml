@@ -198,22 +198,17 @@ paths:
             schema:
               type: object
               properties:
-                tickets:
-                  type: object
-                  properties:
-                    outbound:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Ticket'
-                    return:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/Ticket'
-                customer:
-                  $ref: '#/components/schemas/Customer'
-                method:
-                  type: string
-                  description: "either 'card' or payment method id"
+                id:
+                  type: integer
+                  description: If pass id not present then create pass
+                boarding_data:
+                  $ref: '#/components/schemas/BoardingConfirmation'
+                concession_validation_data:
+                  $ref: '#/components/schemas/ConcessionValidation'
+                payment_data:
+                  $ref: '#/components/schemas/PaymentConfirmation'
+                reservation_data:
+                  $ref: '#/components/schemas/Reservation'
       description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
   '/orders/{uid}':
     parameters:
@@ -314,19 +309,19 @@ paths:
                     type: object
                     description: 'A map of maps that contains the available facilities of all possible combinations of origin and destination. '
                     properties:
-                      '{origin_id}':
+                      '{origin_locationtime_id}':
                         type: object
                         properties:
-                          '{destination_id}':
+                          '{destination_locationtime_id}':
                             $ref: '#/components/schemas/Availability'
                   prices:
                     type: object
                     description: A map of maps that contains the prices of all possible combinations of origin and destination
                     properties:
-                      '{origin_id}':
+                      '{origin_locationtime_id}':
                         type: object
                         properties:
-                          '{destination_id}':
+                          '{destination_locationtime_id}':
                             $ref: '#/components/schemas/Prices'
                   route:
                     type: array
@@ -348,8 +343,8 @@ paths:
         - schema:
             type: boolean
           in: query
-          name: manifests
-          description: get passes grouped by location times of origin
+          name: passes
+          description: get all passes
         - schema:
             type: boolean
           in: query
@@ -359,55 +354,40 @@ paths:
             type: boolean
           in: query
           name: prices
-          description: get prices info
+          description: get prices info for each possible journey
         - schema:
             type: boolean
           in: query
-          name: vehicle
-          description: get vehicle info
-        - schema:
-            type: boolean
-          in: query
-          name: location_times
+          name: route
           description: get list of location times
   /passes:
     post:
-      summary: Mark Passes
+      summary: Post Passes
       tags:
         - Paths
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                        payload:
-                          type: object
       operationId: post-passes
-      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. When submitting a partial pass for check-in, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass  upon payment confirmation.'
+      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. When submitting a partial pass for checkin, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass  upon payment confirmation.'
       requestBody:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: object
-                properties:
-                  pass:
-                    $ref: '#/components/schemas/Pass'
-                  boarding_data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/BoardingConfirmation'
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Pass id should not be present when creating a new pass
+                boarding_data:
+                  $ref: '#/components/schemas/BoardingConfirmation'
+                concession_validation_data:
+                  $ref: '#/components/schemas/ConcessionValidation'
+                payment_data:
+                  $ref: '#/components/schemas/PaymentConfirmation'
+                reservation_data:
+                  $ref: '#/components/schemas/Reservation'
+        description: ''
     parameters: []
 components:
   schemas:
@@ -465,25 +445,6 @@ components:
         - location_time_id
         - location
       title: Location Time
-    Ticket:
-      title: Ticket
-      type: object
-      x-tags:
-        - Models
-      description: 'A ticket is a reservation for one seat (or other facility) in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.'
-      properties:
-        price:
-          type: number
-        reservations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Reservation'
-        discounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Discount'
-      required:
-        - reservations
     Customer:
       title: Customer
       type: object
@@ -577,23 +538,19 @@ components:
           type: integer
         code:
           type: string
-        tickets:
-          $ref: '#/components/schemas/TicketGroup'
-        created_at:
-          type: string
-          format: date-time
-        origin:
-          $ref: '#/components/schemas/LocationTime'
-        destination:
-          $ref: '#/components/schemas/LocationTime'
         name:
           type: string
-    TicketGroup:
-      title: Ticket Group
+        reservation_data:
+          $ref: '#/components/schemas/Reservation'
+    Tickets:
+      title: Tickets
       type: object
       x-tags:
         - Models
-      description: A simple map of the number of each type of resource and discount in a pass.
+      description: |-
+        This object is map of the number of tickets from each type of resource and passengers in a pass.
+
+        A ticket is a reservation for one seat (or other facility) in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.
       properties:
         adults:
           type: integer
@@ -651,7 +608,7 @@ components:
     Reservation:
       title: Reservation
       type: object
-      description: 'A reservation of a seat or other facility (such as wheelchair space or bike space) on a single ride, typically with one vehicle.'
+      description: ''
       x-examples:
         Dundee to Edinburgh:
           id: 1367
@@ -670,19 +627,22 @@ components:
           $ref: '#/components/schemas/LocationTime'
         destination:
           $ref: '#/components/schemas/LocationTime'
-        type:
+        tickets:
+          $ref: '#/components/schemas/Tickets'
+        creation_date:
           type: string
-          enum:
-            - SEAT
-            - WHEELCHAIR
-            - BIKE
-          description: 'The type of reservation: 1) seat 2) wheelchair ...'
+          format: date-time
       required:
         - origin
         - destination
-        - type
-    BoardingConfirmation:
-      title: Boarding Confirmation
+        - tickets
+        - creation_date
+    ConcessionValidation:
+      title: Concession Validation
+      x-tags:
+        - Models
+      description: Present only if validating concessions
+      type: object
       properties:
         verification_type:
           type: string
@@ -690,19 +650,13 @@ components:
             - MANUAL
             - AUTOMATIC
           description: Indicates if the driver verified the pass manually or by reader (NFC or other)
-        verification_instrument:
+        type:
           type: string
           enum:
-            - SCOT_CONCESSION
-            - CREDIT_CARD
-            - PASS_CODE
-            - OTHER_ID
-        boarding_date:
-          type: string
-          format: date-time
+            - SCOTT_NEC
         card_number:
           type: string
-        expire_date:
+        expiry_date:
           type: string
           minLength: 4
           maxLength: 4
@@ -724,11 +678,43 @@ components:
                 type: string
       required:
         - verification_type
-        - verification_instrument
-        - boarding_date
+        - type
+    BoardingConfirmation:
+      title: Boarding Confirmation
+      type: object
       x-tags:
         - Models
-      description: ''
+      properties:
+        date:
+          type: string
+          format: date-time
+        validation_method:
+          type: string
+          enum:
+            - MANUAL
+            - AUTOMATIC
+        trip_id:
+          type: integer
+      required:
+        - date
+        - validation_method
+        - trip_id
+      description: Present if passengers boarded
+    PaymentConfirmation:
+      title: Payment Confirmation
+      type: object
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+      required:
+        - id
+        - amount
+      description: Present if creating a new pass
 tags:
   - name: Models
   - name: Paths
