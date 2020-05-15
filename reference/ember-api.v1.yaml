@@ -8,9 +8,9 @@ info:
     url: 'https://www.ember.to'
     email: developer@ember.to
 servers:
-  - url: 'https://api.ember.to'
+  - url: 'https://api.ember.to/v1'
     description: Production
-  - url: 'http://localhost:8000'
+  - url: 'http://localhost:8000/v1'
     description: Development
   - url: 'http://localhost:3100'
     description: Mock
@@ -186,8 +186,8 @@ paths:
                       properties:
                         type:
                           type: string
-                        reservation:
-                          $ref: '#/components/schemas/Reservation'
+                        description:
+                          type: string
                   order:
                     $ref: '#/components/schemas/Order'
       operationId: post-orders
@@ -198,17 +198,16 @@ paths:
             schema:
               type: object
               properties:
-                id:
-                  type: integer
-                  description: If pass id not present then create pass
-                boarding_data:
-                  $ref: '#/components/schemas/BoardingConfirmation'
-                concession_validation_data:
-                  $ref: '#/components/schemas/ConcessionValidation'
-                payment_data:
-                  $ref: '#/components/schemas/PaymentConfirmation'
-                reservation_data:
-                  $ref: '#/components/schemas/Reservation'
+                passes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Reservation'
+                customer:
+                  $ref: '#/components/schemas/Customer'
+                method:
+                  type: string
+                  description: Either`card` or a paymentMethod id for Apple/Google Pay
+        description: ''
       description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
   '/orders/{uid}':
     parameters:
@@ -540,6 +539,11 @@ components:
           type: string
         reservation_data:
           $ref: '#/components/schemas/Reservation'
+        boarding_data:
+          $ref: '#/components/schemas/BoardingConfirmation'
+      required:
+        - reservation_data
+        - boarding_data
     Tickets:
       title: Tickets
       type: object
@@ -550,17 +554,17 @@ components:
 
         A ticket is a reservation for one seat (or other facility) in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.
       properties:
-        adults:
+        adult:
           type: integer
-        bicycles:
+        bicycle:
           type: integer
-        children:
+        child:
           type: integer
-        concessions:
+        concession:
           type: integer
-        wheelchairs:
+        wheelchair:
           type: integer
-        young_children:
+        young_child:
           type: integer
     Availability:
       title: Availability
@@ -669,9 +673,12 @@ components:
         - type
     BoardingConfirmation:
       title: Boarding Confirmation
-      type: object
+      type:
+        - object
+        - 'null'
       x-tags:
         - Models
+      description: Present if passengers boarded
       properties:
         date:
           type: string
@@ -686,8 +693,6 @@ components:
       required:
         - date
         - validation_method
-        - trip_id
-      description: Present if passengers boarded
     PaymentConfirmation:
       title: Payment Confirmation
       type: object
