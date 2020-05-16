@@ -381,7 +381,10 @@ paths:
                 boarding_data:
                   $ref: '#/components/schemas/BoardingConfirmation'
                 concession_validation_data:
-                  $ref: '#/components/schemas/ConcessionValidation'
+                  type: array
+                  description: Required when boarding concessionary passengers
+                  items:
+                    $ref: '#/components/schemas/ConcessionValidation'
                 payment_data:
                   $ref: '#/components/schemas/PaymentConfirmation'
                 reservation_data:
