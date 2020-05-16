@@ -671,6 +671,7 @@ components:
       required:
         - verification_type
         - type
+        - number_of_people_covered
     BoardingConfirmation:
       title: Boarding Confirmation
       type:
