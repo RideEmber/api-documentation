@@ -150,19 +150,6 @@ paths:
           in: query
           name: return_date_to
           description: Datetime they would like to leave before for return trip
-        - schema:
-            type: integer
-            minimum: 1
-          in: query
-          name: adults
-          description: The total number of passengers travelling
-        - schema:
-            type: string
-            items:
-              $ref: '#/components/schemas/Discount'
-          in: query
-          name: discounts
-          description: A discount that should be taken into account – e.g. concession pass. The discount parameter may be passed multiple times for multiple discounts
       tags:
         - Paths
     parameters: []
@@ -179,17 +166,16 @@ paths:
               schema:
                 type: object
                 properties:
-                  errors:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        type:
-                          type: string
-                        description:
-                          type: string
                   order:
                     $ref: '#/components/schemas/Order'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
       operationId: post-orders
       parameters: []
       requestBody:
@@ -367,6 +353,27 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    enum:
+                      - EditedPass
+                      - CreatedPass
+                      - PassAlreadyExists
+                required:
+                  - result
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
       operationId: post-passes
       description: 'This endpoint allows to update and create passes, usually by the driver during the trip. When submitting a partial pass for checkin, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass  upon payment confirmation.'
       requestBody:
@@ -473,13 +480,22 @@ components:
         uid:
           type: string
           format: uuid
-        client_secret:
-          type: string
+        payment_details:
+          type: object
+          required:
+            - require_payment
+          properties:
+            require_payment:
+              type: boolean
+            client_secret:
+              type: string
         passes:
           type: array
           items:
             $ref: '#/components/schemas/Pass'
       required:
+        - uid
+        - payment_details
         - passes
     Quote:
       title: Quote
@@ -702,16 +718,43 @@ components:
       type: object
       x-tags:
         - Models
+      description: Present if creating a new pass
       properties:
         id:
           type: string
           format: uuid
+          description: Required only when the amount is bigger than 0
         amount:
           type: integer
       required:
-        - id
         - amount
-      description: Present if creating a new pass
+    Error:
+      title: Error
+      type: object
+      x-tags:
+        - Models
+      properties:
+        error:
+          type: string
+          enum:
+            - InvalidPayload
+            - InvalidCustomerData
+            - InvalidConcessionValidationData
+            - TripNotFound
+            - AvailabilityError
+            - MissingBoardingData
+            - PassNotFound
+            - InvalidReservationData
+            - MissingConcessionValidation
+            - MissingPaymentData
+            - InvalidPaymentData
+            - MissingPassCreationDate
+            - InvalidPassData
+            - PassAlreadyExists
+        payload:
+          type: object
+      required:
+        - error
 tags:
   - name: Models
   - name: Paths
