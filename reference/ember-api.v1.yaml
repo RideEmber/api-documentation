@@ -644,10 +644,7 @@ components:
           type: string
           format: date-time
       required:
-        - origin
-        - destination
         - tickets
-        - creation_date
     ConcessionValidation:
       title: Concession Validation
       x-tags:
@@ -713,6 +710,7 @@ components:
       required:
         - date
         - validation_method
+        - trip_id
     PaymentConfirmation:
       title: Payment Confirmation
       type: object
