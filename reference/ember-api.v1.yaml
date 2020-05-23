@@ -652,7 +652,7 @@ components:
       description: Present only if validating concessions
       type: object
       properties:
-        verification_type:
+        validation_method:
           type: string
           enum:
             - MANUAL
@@ -685,7 +685,7 @@ components:
               description:
                 type: string
       required:
-        - verification_type
+        - validation_method
         - type
         - number_of_people_covered
     BoardingConfirmation:
