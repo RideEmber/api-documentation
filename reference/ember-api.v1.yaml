@@ -93,7 +93,14 @@ paths:
           headers: {}
       operationId: get-locations
       description: 'Get a list of possible stops to book a journey. The result is a list of `Location` objects. Note that `Location` objects may be groups of stops, such as cities or bus stations, or individual stops.'
-      parameters: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - STOP
+              - CITY
+          in: query
+          name: type
       tags:
         - Paths
     parameters: []
@@ -109,6 +116,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Quote'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
       operationId: get-quotes
       description: "Search for possible journeys between locations. In future, a journey could include a connection (i.e. a change of bus midway through the journey) but we don't support that for now. Full journey information will be returned, including pricing."
       parameters:
@@ -186,13 +201,17 @@ paths:
               properties:
                 passes:
                   type: array
+                  minItems: 1
                   items:
                     $ref: '#/components/schemas/Reservation'
                 customer:
                   $ref: '#/components/schemas/Customer'
                 method:
                   type: string
-                  description: Either`card` or a paymentMethod id for Apple/Google Pay
+                  description: Required when the amount is bigger than 0. Value should be either`card` or a paymentMethod id for Apple/Google Pay
+              required:
+                - passes
+                - customer
         description: ''
       description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
   '/orders/{uid}':
@@ -375,27 +394,22 @@ paths:
         '500':
           description: Internal Server Error
       operationId: post-passes
-      description: 'This endpoint allows to update and create passes, usually by the driver during the trip. When submitting a partial pass for checkin, the rest of the pass is implicitly cancelled. For onboard sales, the driver creates a new pass  upon payment confirmation.'
+      description: |-
+        This endpoint allows to update, cancel and create passes, usually by the driver during the trip. The action is determined by the schema of the body as described below.
+        For onboard sales, the driver creates a new pass upon payment confirmation.
       requestBody:
         content:
           application/json:
             schema:
+              oneOf:
+                - $ref: '#/components/schemas/PassCheckIn'
+                - $ref: '#/components/schemas/PassPartialCheckIn'
+                - $ref: '#/components/schemas/PassCancel'
+                - $ref: '#/components/schemas/PassPurchase'
+          application/xml:
+            schema:
               type: object
-              properties:
-                id:
-                  type: integer
-                  description: Pass id should not be present when creating a new pass
-                boarding_data:
-                  $ref: '#/components/schemas/BoardingConfirmation'
-                concession_validation_data:
-                  type: array
-                  description: Required when boarding concessionary passengers
-                  items:
-                    $ref: '#/components/schemas/ConcessionValidation'
-                payment_data:
-                  $ref: '#/components/schemas/PaymentConfirmation'
-                reservation_data:
-                  $ref: '#/components/schemas/Reservation'
+              properties: {}
         description: ''
     parameters: []
 components:
@@ -411,6 +425,7 @@ components:
       x-examples: {}
       x-tags:
         - Models
+      title: Location
       properties:
         id:
           type: integer
@@ -428,7 +443,8 @@ components:
       required:
         - id
         - name
-      title: Location
+        - type
+        - description
     LocationTime:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
@@ -460,9 +476,6 @@ components:
       x-tags:
         - Models
       properties:
-        uid:
-          type: string
-          format: uuid
         email:
           type: string
           format: email
@@ -470,6 +483,8 @@ components:
           type: string
         postcode:
           type: string
+      required:
+        - email
     Order:
       title: Order
       type: object
@@ -562,7 +577,6 @@ components:
           $ref: '#/components/schemas/BoardingConfirmation'
       required:
         - reservation_data
-        - boarding_data
     Tickets:
       title: Tickets
       type: object
@@ -585,6 +599,13 @@ components:
           type: integer
         young_child:
           type: integer
+      required:
+        - adult
+        - bicycle
+        - child
+        - concession
+        - wheelchair
+        - young_child
     Availability:
       title: Availability
       type: object
@@ -644,7 +665,10 @@ components:
           type: string
           format: date-time
       required:
+        - origin
+        - destination
         - tickets
+        - creation_date
     ConcessionValidation:
       title: Concession Validation
       x-tags:
@@ -684,15 +708,15 @@ components:
                 type: string
               description:
                 type: string
+            required:
+              - type
       required:
         - validation_method
         - type
         - number_of_people_covered
     BoardingConfirmation:
       title: Boarding Confirmation
-      type:
-        - object
-        - 'null'
+      type: object
       x-tags:
         - Models
       description: Present if passengers boarded
@@ -716,15 +740,16 @@ components:
       type: object
       x-tags:
         - Models
-      description: Present if creating a new pass
+      description: Not required when the amount to pay is zero.
       properties:
         id:
           type: string
           format: uuid
-          description: Required only when the amount is bigger than 0
+          description: ''
         amount:
           type: integer
       required:
+        - id
         - amount
     Error:
       title: Error
@@ -753,6 +778,77 @@ components:
           type: object
       required:
         - error
+    PassCheckIn:
+      title: Pass Check In
+      type: object
+      x-tags:
+        - Models
+        - Pass
+      description: Used for checking in an entire pass.
+      properties:
+        id:
+          type: integer
+        boarding_data:
+          $ref: '#/components/schemas/BoardingConfirmation'
+        concession_validation_data:
+          $ref: '#/components/schemas/ConcessionValidation'
+      required:
+        - id
+        - boarding_data
+    PassPartialCheckIn:
+      title: Pass Partial Check In
+      type: object
+      x-tags:
+        - Models
+        - Pass
+      properties:
+        id:
+          type: integer
+        boarding_data:
+          $ref: '#/components/schemas/BoardingConfirmation'
+        concession_validation_data:
+          $ref: '#/components/schemas/ConcessionValidation'
+        reservation_data:
+          $ref: '#/components/schemas/Reservation'
+      required:
+        - id
+        - boarding_data
+        - reservation_data
+      description: 'For partial check in, update the number of each ticket type to the desired amount.'
+    PassCancel:
+      title: Pass Cancel
+      type: object
+      x-tags:
+        - Models
+        - Pass
+      properties:
+        id:
+          type: integer
+        reservation_data:
+          $ref: '#/components/schemas/Reservation'
+      required:
+        - id
+        - reservation_data
+      description: 'For cnaceling a pass, make sure all ticket types are set to zero.'
+    PassPurchase:
+      title: Pass Purchase
+      type: object
+      x-tags:
+        - Models
+        - Pass
+      description: Used for onboard ticket purcheses.
+      properties:
+        boarding_data:
+          $ref: '#/components/schemas/BoardingConfirmation'
+        concession_validation_data:
+          $ref: '#/components/schemas/ConcessionValidation'
+        reservation_data:
+          $ref: '#/components/schemas/Reservation'
+        payment_data:
+          $ref: '#/components/schemas/PaymentConfirmation'
+      required:
+        - boarding_data
+        - reservation_data
 tags:
   - name: Models
   - name: Paths
