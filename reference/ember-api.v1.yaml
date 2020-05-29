@@ -91,8 +91,16 @@ paths:
                       type: City
                       description: null
           headers: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
       operationId: get-locations
-      description: 'Get a list of possible stops to book a journey. The result is a list of `Location` objects. Note that `Location` objects may be groups of stops, such as cities or bus stations, or individual stops.'
+      description: |-
+        Get a list of possible stops to book a journey. The result is a list of `Location` objects. Note that `Location` objects may be groups of stops, such as cities or bus stations, or individual stops.
+        To get locations of a specific type, use the `type` search parameter.
       parameters:
         - schema:
             type: string
@@ -258,25 +266,25 @@ paths:
             type: string
             format: date-time
           in: query
-          name: departure-time-from
+          name: departure_time_from
           description: Filter out trips that depart before this datetime
         - schema:
             type: string
             format: date-time
           in: query
-          name: departure-time-to
+          name: departure_time_to
           description: Filter out trips that depart after this datetime
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival-time-from
+          name: arrival_time_from
           description: Filter out trips that arrive before this datetime
         - schema:
             type: string
             format: date-time
           in: query
-          name: arrival-time-to
+          name: arrival_time_to
           description: Filter out trips that arrive after this datetime
         - schema:
             type: integer
@@ -450,8 +458,9 @@ components:
       description: The stops that a vehicle is scheduled to make as part of a trip.
       x-tags:
         - Models
+      title: Location Time
       properties:
-        location_time_id:
+        id:
           type: integer
           minimum: 1
         location:
@@ -465,11 +474,12 @@ components:
         allow_boarding:
           type: boolean
         allow_drop_off:
-          type: string
+          type: boolean
       required:
-        - location_time_id
+        - id
         - location
-      title: Location Time
+        - allow_boarding
+        - allow_drop_off
     Customer:
       title: Customer
       type: object
@@ -560,6 +570,12 @@ components:
           format: date-time
         vehicle:
           $ref: '#/components/schemas/Vehicle'
+      required:
+        - id
+        - origin
+        - destination
+        - departure_time
+        - arrival_time
     Pass:
       title: Pass
       type: object
@@ -575,6 +591,9 @@ components:
           $ref: '#/components/schemas/Reservation'
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
+        id:
+          type: integer
+          description: Not returned from all `/orders` endpoints
       required:
         - reservation_data
     Tickets:
@@ -669,29 +688,24 @@ components:
         - destination
         - tickets
         - creation_date
-    ConcessionValidation:
-      title: Concession Validation
+    ConcessionConfirmation:
+      title: Concession Confirmation
       x-tags:
         - Models
-      description: Present only if validating concessions
+      description: Present only if there are concession tickets.
       type: object
       properties:
-        validation_method:
-          type: string
-          enum:
-            - MANUAL
-            - AUTOMATIC
-          description: Indicates if the driver verified the pass manually or by reader (NFC or other)
+        confirmation_method:
+          $ref: '#/components/schemas/ConfirmationMethod'
         type:
           type: string
           enum:
-            - SCOTT_NEC
+            - SCOT_NEC
         card_number:
           type: string
         expiry_date:
           type: string
-          minLength: 4
-          maxLength: 4
+          format: date-time
         name_on_card:
           type: string
         number_of_people_covered:
@@ -711,7 +725,7 @@ components:
             required:
               - type
       required:
-        - validation_method
+        - confirmation_method
         - type
         - number_of_people_covered
     BoardingConfirmation:
@@ -719,21 +733,18 @@ components:
       type: object
       x-tags:
         - Models
-      description: Present if passengers boarded
+      description: ''
       properties:
         date:
           type: string
           format: date-time
-        validation_method:
-          type: string
-          enum:
-            - MANUAL
-            - AUTOMATIC
+        confirmation_method:
+          $ref: '#/components/schemas/ConfirmationMethod'
         trip_id:
           type: integer
       required:
         - date
-        - validation_method
+        - confirmation_method
         - trip_id
     PaymentConfirmation:
       title: Payment Confirmation
@@ -774,6 +785,11 @@ components:
             - MissingPassCreationDate
             - InvalidPassData
             - PassAlreadyExists
+            - MissingPassesData
+            - MissingPaymentMethod
+            - InvalidOriginOrDestinationId
+            - InvalidLocationType
+            - WrongPaymentAmount
         payload:
           type: object
       required:
@@ -791,7 +807,7 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
         concession_validation_data:
-          $ref: '#/components/schemas/ConcessionValidation'
+          $ref: '#/components/schemas/ConcessionConfirmation'
       required:
         - id
         - boarding_data
@@ -807,7 +823,7 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
         concession_validation_data:
-          $ref: '#/components/schemas/ConcessionValidation'
+          $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
           $ref: '#/components/schemas/Reservation'
       required:
@@ -841,7 +857,7 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
         concession_validation_data:
-          $ref: '#/components/schemas/ConcessionValidation'
+          $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
           $ref: '#/components/schemas/Reservation'
         payment_data:
@@ -849,6 +865,16 @@ components:
       required:
         - boarding_data
         - reservation_data
+    ConfirmationMethod:
+      type: string
+      title: ConfirmationMethod
+      x-tags:
+        - Models
+      enum:
+        - QR_CODE
+        - NFC
+        - ONBOARD_SALES
+        - MENUAL
 tags:
   - name: Models
   - name: Paths
