@@ -810,6 +810,7 @@ components:
             - InvalidConcessionConfirmationData
             - MissingConcessionConfirmation
             - ConcessionConfirmationIsNotAList
+            - RequestAlreadyCompleted
         payload:
           type: object
       required:
@@ -828,6 +829,8 @@ components:
           $ref: '#/components/schemas/BoardingConfirmation'
         concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
+        idempotency_key:
+          $ref: '#/components/schemas/IdempotencyKey'
       required:
         - id
         - boarding_data
@@ -847,6 +850,8 @@ components:
           $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
+        idempotency_key:
+          $ref: '#/components/schemas/IdempotencyKey'
       required:
         - id
         - boarding_data
@@ -863,6 +868,8 @@ components:
           type: integer
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
+        idempotency_key:
+          $ref: '#/components/schemas/IdempotencyKey'
       required:
         - id
         - reservation_data
@@ -882,6 +889,8 @@ components:
           $ref: '#/components/schemas/ReservationRequest'
         payment_data:
           $ref: '#/components/schemas/PaymentConfirmation'
+        idempotency_key:
+          $ref: '#/components/schemas/IdempotencyKey'
       required:
         - boarding_data
         - reservation_data
@@ -921,6 +930,13 @@ components:
       required:
         - id
         - location
+    IdempotencyKey:
+      type: string
+      title: Idempotency Key
+      x-tags:
+        - Models
+      format: uuid
+      description: Used for safely retrying a request
 tags:
   - name: Models
   - name: Paths
