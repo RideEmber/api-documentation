@@ -806,7 +806,7 @@ components:
           type: integer
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
-        concession_validation_data:
+        concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
       required:
         - id
@@ -817,12 +817,13 @@ components:
       x-tags:
         - Models
         - Pass
+      description: 'For partial check in, update the number of each ticket type to the desired amount.'
       properties:
         id:
           type: integer
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
-        concession_validation_data:
+        concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
           $ref: '#/components/schemas/Reservation'
@@ -830,7 +831,6 @@ components:
         - id
         - boarding_data
         - reservation_data
-      description: 'For partial check in, update the number of each ticket type to the desired amount.'
     PassCancel:
       title: Pass Cancel
       type: object
@@ -856,7 +856,7 @@ components:
       properties:
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
-        concession_validation_data:
+        concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
           $ref: '#/components/schemas/Reservation'
@@ -867,14 +867,15 @@ components:
         - reservation_data
     ConfirmationMethod:
       type: string
-      title: ConfirmationMethod
+      title: Confirmation Method
       x-tags:
         - Models
       enum:
         - QR_CODE
         - NFC
-        - ONBOARD_SALES
+        - ONBOARD_SALE
         - MENUAL
+      description: ''
 tags:
   - name: Models
   - name: Paths
