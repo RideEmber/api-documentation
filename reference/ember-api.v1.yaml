@@ -211,7 +211,7 @@ paths:
                   type: array
                   minItems: 1
                   items:
-                    $ref: '#/components/schemas/Reservation'
+                    $ref: '#/components/schemas/ReservationRequest'
                 customer:
                   $ref: '#/components/schemas/Customer'
                 method:
@@ -338,7 +338,7 @@ paths:
                   route:
                     type: array
                     items:
-                      $ref: '#/components/schemas/LocationTime'
+                      $ref: '#/components/schemas/LocationTimeResponse'
                   passes:
                     type: array
                     description: 'This object contains passes, grouped by location time of origin'
@@ -453,12 +453,12 @@ components:
         - name
         - type
         - description
-    LocationTime:
+    LocationTimeResponse:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
       x-tags:
         - Models
-      title: Location Time
+      title: Location Time Response
       properties:
         id:
           type: integer
@@ -473,11 +473,15 @@ components:
           format: date-time
         allow_boarding:
           type: boolean
+          description: ''
         allow_drop_off:
           type: boolean
+          description: ''
       required:
         - id
         - location
+        - arrival_time
+        - departure_time
         - allow_boarding
         - allow_drop_off
     Customer:
@@ -529,9 +533,9 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/LocationTime'
+          $ref: '#/components/schemas/LocationTimeResponse'
         destination:
-          $ref: '#/components/schemas/LocationTime'
+          $ref: '#/components/schemas/LocationTimeResponse'
         availability:
           $ref: '#/components/schemas/Availability'
         prices:
@@ -559,23 +563,15 @@ components:
         id:
           type: integer
         origin:
-          $ref: '#/components/schemas/Location'
+          $ref: '#/components/schemas/LocationTimeResponse'
         destination:
-          $ref: '#/components/schemas/Location'
-        departure_time:
-          type: string
-          format: date-time
-        arrival_time:
-          type: string
-          format: date-time
+          $ref: '#/components/schemas/LocationTimeResponse'
         vehicle:
           $ref: '#/components/schemas/Vehicle'
       required:
         - id
         - origin
         - destination
-        - departure_time
-        - arrival_time
     Pass:
       title: Pass
       type: object
@@ -588,7 +584,7 @@ components:
         name:
           type: string
         reservation_data:
-          $ref: '#/components/schemas/Reservation'
+          $ref: '#/components/schemas/ReservationResponse'
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
         id:
@@ -602,7 +598,7 @@ components:
       x-tags:
         - Models
       description: |-
-        This object is map of the number of tickets from each type of resource and passengers in a pass.
+        This object is a map of the number of tickets from each type of resource and passengers in a pass.
 
         A ticket is a reservation for one seat (or other facility) in one or more legs. For example, a journey of one person that requires one bus change, will be booked as one ticket with two legs. In this case we are guaranteeing the connection – i.e. if the customer misses the connecting bus, we will find a way to get them there.
       properties:
@@ -666,8 +662,8 @@ components:
         - OVER_65
       x-tags:
         - Models
-    Reservation:
-      title: Reservation
+    ReservationResponse:
+      title: Reservation Response
       type: object
       description: ''
       x-examples: {}
@@ -675,9 +671,31 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/LocationTime'
+          $ref: '#/components/schemas/LocationTimeResponse'
         destination:
-          $ref: '#/components/schemas/LocationTime'
+          $ref: '#/components/schemas/LocationTimeResponse'
+        tickets:
+          $ref: '#/components/schemas/Tickets'
+        creation_date:
+          type: string
+          format: date-time
+      required:
+        - origin
+        - destination
+        - tickets
+        - creation_date
+    ReservationRequest:
+      title: Reservation Request
+      type: object
+      description: ''
+      x-examples: {}
+      x-tags:
+        - Models
+      properties:
+        origin:
+          $ref: '#/components/schemas/LocationTimeRequest'
+        destination:
+          $ref: '#/components/schemas/LocationTimeRequest'
         tickets:
           $ref: '#/components/schemas/Tickets'
         creation_date:
@@ -742,6 +760,7 @@ components:
           $ref: '#/components/schemas/ConfirmationMethod'
         trip_id:
           type: integer
+          description: This property is not returned from `/orders` resources
       required:
         - date
         - confirmation_method
@@ -773,13 +792,11 @@ components:
           enum:
             - InvalidPayload
             - InvalidCustomerData
-            - InvalidConcessionValidationData
             - TripNotFound
             - AvailabilityError
             - MissingBoardingData
             - PassNotFound
             - InvalidReservationData
-            - MissingConcessionValidation
             - MissingPaymentData
             - InvalidPaymentData
             - MissingPassCreationDate
@@ -790,6 +807,9 @@ components:
             - InvalidOriginOrDestinationId
             - InvalidLocationType
             - WrongPaymentAmount
+            - InvalidConcessionConfirmationData
+            - MissingConcessionConfirmation
+            - ConcessionConfirmationIsNotAList
         payload:
           type: object
       required:
@@ -826,7 +846,7 @@ components:
         concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
-          $ref: '#/components/schemas/Reservation'
+          $ref: '#/components/schemas/ReservationRequest'
       required:
         - id
         - boarding_data
@@ -837,15 +857,15 @@ components:
       x-tags:
         - Models
         - Pass
+      description: 'For cnaceling a pass, make sure all ticket types are set to zero.'
       properties:
         id:
           type: integer
         reservation_data:
-          $ref: '#/components/schemas/Reservation'
+          $ref: '#/components/schemas/ReservationRequest'
       required:
         - id
         - reservation_data
-      description: 'For cnaceling a pass, make sure all ticket types are set to zero.'
     PassPurchase:
       title: Pass Purchase
       type: object
@@ -859,7 +879,7 @@ components:
         concession_confirmation_data:
           $ref: '#/components/schemas/ConcessionConfirmation'
         reservation_data:
-          $ref: '#/components/schemas/Reservation'
+          $ref: '#/components/schemas/ReservationRequest'
         payment_data:
           $ref: '#/components/schemas/PaymentConfirmation'
       required:
@@ -876,6 +896,31 @@ components:
         - ONBOARD_SALE
         - MENUAL
       description: ''
+    LocationTimeRequest:
+      title: Location Time Request
+      type: object
+      x-tags:
+        - Models
+      description: A lightweight object used for posting requests
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        location:
+          type: object
+          properties:
+            id:
+              type: integer
+        arrival_time:
+          type: string
+          format: date-time
+          description: Either arrival or departure time is required
+        departure_time:
+          type: string
+          format: date-time
+      required:
+        - id
+        - location
 tags:
   - name: Models
   - name: Paths
