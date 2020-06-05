@@ -154,25 +154,25 @@ paths:
             format: date-time
           in: query
           name: out_date_from
-          description: Datetime they would like to leave after for outbound trip
+          description: Datetime they would like to leave after
         - schema:
             type: string
             format: date-time
           in: query
           name: out_date_to
-          description: Datetime they would like to leave before for outbound trip
+          description: 'Datetime they would like to leave before '
         - schema:
             type: string
             format: date-time
           in: query
-          name: return_date_from
-          description: Datetime they would like to leave after for return trip
+          name: arrival_date_from
+          description: Datetime they would like to arrive after
         - schema:
             type: string
             format: date-time
           in: query
-          name: return_date_to
-          description: Datetime they would like to leave before for return trip
+          name: arrival_date_to
+          description: Datetime they would like to arrive before
       tags:
         - Paths
     parameters: []
