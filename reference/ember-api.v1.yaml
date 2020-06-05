@@ -811,6 +811,7 @@ components:
             - MissingConcessionConfirmation
             - ConcessionConfirmationIsNotAList
             - RequestAlreadyCompleted
+            - PaymentAlreadyExists
         payload:
           type: object
       required:
@@ -903,8 +904,7 @@ components:
         - QR_CODE
         - NFC
         - ONBOARD_SALE
-        - MENUAL
-      description: ''
+        - MANUAL
     LocationTimeRequest:
       title: Location Time Request
       type: object
