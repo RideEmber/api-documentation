@@ -822,7 +822,7 @@ components:
       x-tags:
         - Models
         - Pass
-      description: Used for checking in an entire pass.
+      description: Check in an entire pass.
       properties:
         id:
           type: integer
@@ -841,7 +841,7 @@ components:
       x-tags:
         - Models
         - Pass
-      description: 'For partial check in, update the number of each ticket type to the desired amount.'
+      description: Check in some passes and cancel the rest. The reservation data should reflect the passes that should not be cancelled.
       properties:
         id:
           type: integer
@@ -863,7 +863,7 @@ components:
       x-tags:
         - Models
         - Pass
-      description: 'For cnaceling a pass, make sure all ticket types are set to zero.'
+      description: Cancel a pass by setting the ticket types in reservation_data to zero.
       properties:
         id:
           type: integer
@@ -880,7 +880,7 @@ components:
       x-tags:
         - Models
         - Pass
-      description: Used for onboard ticket purcheses.
+      description: Used for onboard ticket purchases.
       properties:
         boarding_data:
           $ref: '#/components/schemas/BoardingConfirmation'
