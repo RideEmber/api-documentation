@@ -8,14 +8,14 @@ info:
     url: 'https://www.ember.to'
     email: developer@ember.to
 servers:
-  - url: 'https://api.ember.to/v1'
+  - url: 'https://api.ember.to'
     description: Production
-  - url: 'http://localhost:8000/v1'
+  - url: 'http://localhost:8000'
     description: Development
   - url: 'http://localhost:3100'
     description: Mock
 paths:
-  /locations:
+  /v1/locations:
     get:
       summary: Get Locations
       responses:
@@ -112,7 +112,7 @@ paths:
       tags:
         - Paths
     parameters: []
-  /quotes:
+  /v1/quotes:
     get:
       summary: Get Quotes
       responses:
@@ -176,7 +176,7 @@ paths:
       tags:
         - Paths
     parameters: []
-  /orders:
+  /v1/orders:
     post:
       summary: Create Order
       tags:
@@ -222,7 +222,8 @@ paths:
                 - customer
         description: ''
       description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
-  '/orders/{uid}':
+    parameters: []
+  '/v1/orders/{uid}':
     parameters:
       - schema:
           type: string
@@ -245,7 +246,7 @@ paths:
                   $ref: '#/components/schemas/Pass'
       operationId: get-order-by-uid
       description: 'Get the details of an order from a uid, without further authentication. Using a UID without authentication is a deliberate convenience feature that allows for things like sharing order URLs. Order UIDs should be kept private but this endpoint does not expose any personal data so the risk is limited.'
-  /trips:
+  /v1/trips:
     get:
       summary: Get Trips
       tags:
@@ -298,7 +299,8 @@ paths:
           in: query
           name: destination
           description: Filter to trips that end at this Location ID
-  '/trips/{id}':
+    parameters: []
+  '/v1/trips/{id}':
     parameters:
       - schema:
           type: string
@@ -372,7 +374,7 @@ paths:
           in: query
           name: route
           description: get list of location times
-  /passes:
+  /v1/passes:
     post:
       summary: Post Passes
       tags:
