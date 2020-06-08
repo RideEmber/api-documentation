@@ -442,6 +442,7 @@ components:
           minimum: 1
         name:
           type: string
+          maxLength: 50
         type:
           type: string
           enum:
@@ -450,6 +451,7 @@ components:
             - STATION
         description:
           type: string
+          maxLength: 140
       required:
         - id
         - name
@@ -493,10 +495,13 @@ components:
         email:
           type: string
           format: email
+          maxLength: 70
         name:
           type: string
+          maxLength: 40
         postcode:
           type: string
+          maxLength: 12
       required:
         - email
     Order:
@@ -581,8 +586,10 @@ components:
       properties:
         code:
           type: string
+          maxLength: 9
         name:
           type: string
+          maxLength: 50
         reservation_data:
           $ref: '#/components/schemas/ReservationResponse'
         boarding_data:
@@ -721,11 +728,13 @@ components:
             - SCOT_NEC
         card_number:
           type: string
+          maxLength: 30
         expiry_date:
           type: string
           format: date-time
         name_on_card:
           type: string
+          maxLength: 50
         number_of_people_covered:
           type: integer
         json_blob:
