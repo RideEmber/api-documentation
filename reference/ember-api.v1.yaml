@@ -635,11 +635,15 @@ components:
         - Models
       properties:
         seat:
-          type: number
+          type: integer
         wheelchair:
           type: integer
         bicycle:
           type: integer
+      required:
+        - seat
+        - wheelchair
+        - bicycle
     Prices:
       title: Prices
       type: object
