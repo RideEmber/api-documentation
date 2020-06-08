@@ -843,6 +843,7 @@ components:
             - ConcessionConfirmationIsNotAList
             - RequestAlreadyCompleted
             - PaymentAlreadyExists
+            - RequestedMoreTicketsThanPresentInPass
         payload:
           type: object
       required:
