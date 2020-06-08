@@ -393,6 +393,7 @@ paths:
                       - EditedPass
                       - CreatedPass
                       - PassAlreadyExists
+                      - UncheckedPass
                   warnings:
                     type: array
                     items:
@@ -432,6 +433,7 @@ paths:
                 - $ref: '#/components/schemas/PassPartialCheckIn'
                 - $ref: '#/components/schemas/PassCancel'
                 - $ref: '#/components/schemas/PassPurchase'
+                - $ref: '#/components/schemas/PassUncheckIn'
           application/xml:
             schema:
               type: object
@@ -966,6 +968,21 @@ components:
         - Models
       format: uuid
       description: Used for safely retrying a request
+    PassUncheckIn:
+      title: Pass Uncheck In
+      type: object
+      x-tags:
+        - Models
+        - Pass
+      properties:
+        id:
+          type: integer
+        uncheck_trip_id:
+          type: integer
+      required:
+        - id
+        - uncheck_trip_id
+      description: Undo a check-in for a specific trip
 tags:
   - name: Models
   - name: Paths
