@@ -393,6 +393,22 @@ paths:
                       - EditedPass
                       - CreatedPass
                       - PassAlreadyExists
+                  warnings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - TripOverBooked
+                            - WrongPaymentAmount
+                        details:
+                          type:
+                            - object
+                            - string
+                      required:
+                        - type
                 required:
                   - result
         '400':
