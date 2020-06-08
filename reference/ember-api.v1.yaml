@@ -153,13 +153,13 @@ paths:
             type: string
             format: date-time
           in: query
-          name: out_date_from
+          name: departure_date_from
           description: Datetime they would like to leave after
         - schema:
             type: string
             format: date-time
           in: query
-          name: out_date_to
+          name: departure_date_to
           description: 'Datetime they would like to leave before '
         - schema:
             type: string
@@ -246,7 +246,7 @@ paths:
                   $ref: '#/components/schemas/Pass'
       operationId: get-order-by-uid
       description: 'Get the details of an order from a uid, without further authentication. Using a UID without authentication is a deliberate convenience feature that allows for things like sharing order URLs. Order UIDs should be kept private but this endpoint does not expose any personal data so the risk is limited.'
-  /v1/trips:
+  /v1/trips/:
     get:
       summary: Get Trips
       tags:
@@ -265,7 +265,7 @@ paths:
       parameters:
         - schema:
             type: string
-            format: date-time
+            format: date
           in: query
           name: departure_time_from
           description: Filter out trips that depart before this datetime
@@ -277,7 +277,7 @@ paths:
           description: Filter out trips that depart after this datetime
         - schema:
             type: string
-            format: date-time
+            format: date
           in: query
           name: arrival_time_from
           description: Filter out trips that arrive before this datetime
@@ -303,7 +303,7 @@ paths:
   '/v1/trips/{id}':
     parameters:
       - schema:
-          type: string
+          type: integer
         name: id
         in: path
         required: true
@@ -482,8 +482,6 @@ components:
       required:
         - id
         - location
-        - arrival_time
-        - departure_time
         - allow_boarding
         - allow_drop_off
     Customer:
@@ -731,8 +729,8 @@ components:
         number_of_people_covered:
           type: integer
         json_blob:
-          type: string
-          description: Has to be a valid JSON string
+          type: object
+          description: Has to be a valid JSON
         warnings:
           type: array
           items:
