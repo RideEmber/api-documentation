@@ -975,15 +975,15 @@ components:
       x-tags:
         - Models
         - Pass
+      description: Undo a check-in for a specific trip
       properties:
         id:
           type: integer
-        uncheck_trip_id:
+        undo_boarding_trip_id:
           type: integer
       required:
         - id
-        - uncheck_trip_id
-      description: Undo a check-in for a specific trip
+        - undo_boarding_trip_id
 tags:
   - name: Models
   - name: Paths
