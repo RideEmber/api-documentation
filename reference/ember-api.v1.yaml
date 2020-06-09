@@ -611,7 +611,7 @@ components:
         reservation_data:
           $ref: '#/components/schemas/ReservationResponse'
         boarding_data:
-          $ref: '#/components/schemas/BoardingConfirmation'
+          $ref: '#/components/schemas/BoardingData'
         id:
           type: integer
           description: Not returned from all `/orders` endpoints
@@ -735,8 +735,8 @@ components:
         - destination
         - tickets
         - creation_date
-    ConcessionConfirmation:
-      title: Concession Confirmation
+    ConcessionData:
+      title: Concession Data
       x-tags:
         - Models
       description: Present only if there are concession tickets.
@@ -777,8 +777,8 @@ components:
         - confirmation_method
         - type
         - number_of_people_covered
-    BoardingConfirmation:
-      title: Boarding Confirmation
+    BoardingData:
+      title: Boarding Data
       type: object
       x-tags:
         - Models
@@ -796,8 +796,8 @@ components:
         - date
         - confirmation_method
         - trip_id
-    PaymentConfirmation:
-      title: Payment Confirmation
+    PaymentData:
+      title: Payment Data
       type: object
       x-tags:
         - Models
@@ -838,9 +838,9 @@ components:
             - InvalidOriginOrDestinationId
             - InvalidLocationType
             - WrongPaymentAmount
-            - InvalidConcessionConfirmationData
-            - MissingConcessionConfirmation
-            - ConcessionConfirmationIsNotAList
+            - InvalidConcessionData
+            - MissingConcessionData
+            - ConcessionDataIsNotAList
             - RequestAlreadyCompleted
             - PaymentAlreadyExists
             - RequestedMoreTicketsThanPresentInPass
@@ -859,9 +859,9 @@ components:
         id:
           type: integer
         boarding_data:
-          $ref: '#/components/schemas/BoardingConfirmation'
-        concession_confirmation_data:
-          $ref: '#/components/schemas/ConcessionConfirmation'
+          $ref: '#/components/schemas/BoardingData'
+        concession_data:
+          $ref: '#/components/schemas/ConcessionData'
         idempotency_key:
           $ref: '#/components/schemas/IdempotencyKey'
       required:
@@ -878,9 +878,9 @@ components:
         id:
           type: integer
         boarding_data:
-          $ref: '#/components/schemas/BoardingConfirmation'
-        concession_confirmation_data:
-          $ref: '#/components/schemas/ConcessionConfirmation'
+          $ref: '#/components/schemas/BoardingData'
+        concession_data:
+          $ref: '#/components/schemas/ConcessionData'
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
         idempotency_key:
@@ -915,13 +915,13 @@ components:
       description: Used for onboard ticket purchases.
       properties:
         boarding_data:
-          $ref: '#/components/schemas/BoardingConfirmation'
-        concession_confirmation_data:
-          $ref: '#/components/schemas/ConcessionConfirmation'
+          $ref: '#/components/schemas/BoardingData'
+        concession_data:
+          $ref: '#/components/schemas/ConcessionData'
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
         payment_data:
-          $ref: '#/components/schemas/PaymentConfirmation'
+          $ref: '#/components/schemas/PaymentData'
         idempotency_key:
           $ref: '#/components/schemas/IdempotencyKey'
       required:
