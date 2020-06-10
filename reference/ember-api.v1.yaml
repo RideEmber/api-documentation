@@ -340,7 +340,7 @@ paths:
                   route:
                     type: array
                     items:
-                      $ref: '#/components/schemas/LocationTimeResponse'
+                      $ref: '#/components/schemas/LocationTime'
                   passes:
                     type: array
                     description: 'This object contains passes, grouped by location time of origin'
@@ -475,12 +475,12 @@ components:
         - name
         - type
         - description
-    LocationTimeResponse:
+    LocationTime:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
       x-tags:
         - Models
-      title: Location Time Response
+      title: Location Time
       properties:
         id:
           type: integer
@@ -556,9 +556,9 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         destination:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         availability:
           $ref: '#/components/schemas/Availability'
         prices:
@@ -586,9 +586,9 @@ components:
         id:
           type: integer
         origin:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         destination:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         vehicle:
           $ref: '#/components/schemas/Vehicle'
       required:
@@ -700,9 +700,9 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         destination:
-          $ref: '#/components/schemas/LocationTimeResponse'
+          $ref: '#/components/schemas/LocationTime'
         tickets:
           $ref: '#/components/schemas/Tickets'
         creation_date:
@@ -722,9 +722,11 @@ components:
         - Models
       properties:
         origin:
-          $ref: '#/components/schemas/LocationTimeRequest'
+          type: integer
+          description: A location time id
         destination:
-          $ref: '#/components/schemas/LocationTimeRequest'
+          type: integer
+          description: A location time id
         tickets:
           $ref: '#/components/schemas/Tickets'
         creation_date:
@@ -937,31 +939,6 @@ components:
         - NFC
         - ONBOARD_SALE
         - MANUAL
-    LocationTimeRequest:
-      title: Location Time Request
-      type: object
-      x-tags:
-        - Models
-      description: A lightweight object used for posting requests
-      properties:
-        id:
-          type: integer
-          minimum: 1
-        location:
-          type: object
-          properties:
-            id:
-              type: integer
-        arrival_time:
-          type: string
-          format: date-time
-          description: Either arrival or departure time is required
-        departure_time:
-          type: string
-          format: date-time
-      required:
-        - id
-        - location
     IdempotencyKey:
       type: string
       title: Idempotency Key
