@@ -846,6 +846,7 @@ components:
             - RequestAlreadyCompleted
             - PaymentAlreadyExists
             - RequestedMoreTicketsThanPresentInPass
+            - UnableToBookForThisDepartureTime
         payload:
           type: object
       required:
@@ -863,7 +864,9 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingData'
         concession_data:
-          $ref: '#/components/schemas/ConcessionData'
+          type: array
+          items:
+            $ref: '#/components/schemas/ConcessionData'
         idempotency_key:
           $ref: '#/components/schemas/IdempotencyKey'
       required:
@@ -882,7 +885,9 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingData'
         concession_data:
-          $ref: '#/components/schemas/ConcessionData'
+          type: array
+          items:
+            $ref: '#/components/schemas/ConcessionData'
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
         idempotency_key:
@@ -919,7 +924,9 @@ components:
         boarding_data:
           $ref: '#/components/schemas/BoardingData'
         concession_data:
-          $ref: '#/components/schemas/ConcessionData'
+          type: array
+          items:
+            $ref: '#/components/schemas/ConcessionData'
         reservation_data:
           $ref: '#/components/schemas/ReservationRequest'
         payment_data:
