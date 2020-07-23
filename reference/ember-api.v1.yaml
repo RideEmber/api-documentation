@@ -440,6 +440,61 @@ paths:
               properties: {}
         description: ''
     parameters: []
+  /v1/times:
+    post:
+      summary: Update Location Times
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+      operationId: post-v1-times
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - ACTUAL
+              - ESTIMATE
+          in: query
+          name: type
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - description: When posting estimates
+                  properties:
+                    location_time_id:
+                      type: integer
+                    timestamp:
+                      type: string
+                      format: date-time
+                    departure:
+                      type: string
+                      format: date-time
+                    arrival:
+                      type: string
+                      format: date-time
+                  required:
+                    - location_time_id
+                    - timestamp
+                    - departure
+                    - arrival
+                - properties:
+                    location_time_id:
+                      type: integer
+                    departure:
+                      type: string
+                      format: date-time
+                    arrival:
+                      type: string
+                      format: date-time
+                  description: When posting actual times
+                  required:
+                    - location_time_id
+              type: object
+        description: ''
+      description: 'Update the time estimates and actual times of arrival/departure for a location time. '
 components:
   schemas:
     Location:
@@ -487,23 +542,63 @@ components:
           minimum: 1
         location:
           $ref: '#/components/schemas/Location'
-        arrival_time:
-          type: string
-          format: date-time
-        departure_time:
-          type: string
-          format: date-time
         allow_boarding:
           type: boolean
           description: ''
         allow_drop_off:
           type: boolean
           description: ''
+        departure:
+          type: object
+          required:
+            - scheduled
+            - actual
+            - estimated
+          properties:
+            scheduled:
+              type:
+                - string
+                - 'null'
+              format: date-time
+            actual:
+              type:
+                - string
+                - 'null'
+              format: date-time
+            estimated:
+              type:
+                - string
+                - 'null'
+              format: date-time
+        arrival:
+          type: object
+          required:
+            - scheduled
+            - actual
+            - estimated
+          properties:
+            scheduled:
+              type:
+                - string
+                - 'null'
+              format: date-time
+            actual:
+              type:
+                - string
+                - 'null'
+              format: date-time
+            estimated:
+              type:
+                - string
+                - 'null'
+              format: date-time
       required:
         - id
         - location
         - allow_boarding
         - allow_drop_off
+        - departure
+        - arrival
     Customer:
       title: Customer
       type: object
