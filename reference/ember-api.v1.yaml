@@ -15,7 +15,7 @@ servers:
   - url: 'http://localhost:3100'
     description: Mock
 paths:
-  /v1/locations:
+  /v1/locations/:
     get:
       summary: Get Locations
       responses:
@@ -112,7 +112,7 @@ paths:
       tags:
         - Paths
     parameters: []
-  /v1/quotes:
+  /v1/quotes/:
     get:
       summary: Get Quotes
       responses:
@@ -176,7 +176,7 @@ paths:
       tags:
         - Paths
     parameters: []
-  /v1/orders:
+  /v1/orders/:
     post:
       summary: Create Order
       tags:
@@ -223,7 +223,7 @@ paths:
         description: ''
       description: 'Create a new order for one or many tickets. Payment will be then be taken, followed by order confirmation.'
     parameters: []
-  '/v1/orders/{uid}':
+  '/v1/orders/{uid}/':
     parameters:
       - schema:
           type: string
@@ -300,7 +300,7 @@ paths:
           name: destination
           description: Filter to trips that end at this Location ID
     parameters: []
-  '/v1/trips/{id}':
+  '/v1/trips/{id}/':
     parameters:
       - schema:
           type: integer
@@ -374,7 +374,7 @@ paths:
           in: query
           name: route
           description: get list of location times
-  /v1/passes:
+  /v1/passes/:
     post:
       summary: Post Passes
       tags:
@@ -440,61 +440,69 @@ paths:
               properties: {}
         description: ''
     parameters: []
-  /v1/times:
+  /v1/times/actuals/:
     post:
-      summary: Update Location Times
+      summary: Update Actual Times
       tags:
         - Paths
       responses:
         '200':
           description: OK
       operationId: post-v1-times
-      parameters:
-        - schema:
-            type: string
-            enum:
-              - ACTUAL
-              - ESTIMATE
-          in: query
-          name: type
+      parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              oneOf:
-                - description: When posting estimates
-                  properties:
-                    location_time_id:
-                      type: integer
-                    timestamp:
-                      type: string
-                      format: date-time
-                    departure:
-                      type: string
-                      format: date-time
-                    arrival:
-                      type: string
-                      format: date-time
-                  required:
-                    - location_time_id
-                    - timestamp
-                    - departure
-                    - arrival
-                - properties:
-                    location_time_id:
-                      type: integer
-                    departure:
-                      type: string
-                      format: date-time
-                    arrival:
-                      type: string
-                      format: date-time
-                  description: When posting actual times
-                  required:
-                    - location_time_id
               type: object
+              properties:
+                location_time_id:
+                  type: integer
+                departure:
+                  type: string
+                  format: date-time
+                arrival:
+                  type: string
+                  format: date-time
+              required:
+                - location_time_id
         description: ''
-      description: 'Update the time estimates and actual times of arrival/departure for a location time. '
+      description: 'Update the actual times of arrival/departure for a location time. '
+    parameters: []
+  /v1/times/estimates/:
+    post:
+      summary: Update Time Estimates
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+      operationId: post-v1-times-estimates
+      description: 'Update the estimated time of arrival/departure for a location time. '
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                location_time_id:
+                  type: integer
+                estimation_time:
+                  type: string
+                  format: date-time
+                  description: The time you made the estimation
+                departure:
+                  type: string
+                  format: date-time
+                arrival:
+                  type: string
+                  format: date-time
+              required:
+                - location_time_id
+                - estimation_time
+                - departure
+                - arrival
+              type: object
+    parameters: []
 components:
   schemas:
     Location:
@@ -552,45 +560,29 @@ components:
           type: object
           required:
             - scheduled
-            - actual
-            - estimated
           properties:
             scheduled:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
             actual:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
             estimated:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
         arrival:
           type: object
           required:
             - scheduled
-            - actual
-            - estimated
           properties:
             scheduled:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
             actual:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
             estimated:
-              type:
-                - string
-                - 'null'
+              type: string
               format: date-time
       required:
         - id
