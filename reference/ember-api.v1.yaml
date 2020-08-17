@@ -105,10 +105,15 @@ paths:
         - schema:
             type: string
             enum:
-              - STOP
               - CITY
+              - STOP_POINT
+              - STOP_AREA
+              - STATION
+              - COUNTRY
+              - all
           in: query
           name: type
+          description: The default value is `STOP_AREA`
       tags:
         - Paths
     parameters: []
@@ -483,6 +488,7 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
                 location_time_id:
                   type: integer
@@ -501,8 +507,38 @@ paths:
                 - estimation_time
                 - departure
                 - arrival
-              type: object
     parameters: []
+  /sumup/tokens/:
+    get:
+      summary: Get SumUp Token
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: Bearer XXXXXXXXX
+      operationId: get-sumup-tokens
+  /sumup/confirmations/:
+    get:
+      summary: Confirm SumUp Payments
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pending_confirmation_amount:
+                    type: number
+                  successfully_confirmed:
+                    type: number
+                required:
+                  - pending_confirmation_amount
+                  - successfully_confirmed
+      operationId: get-sumup-confirmations
+      description: 'When calling this endpoint, the system will try to confirm with SumUp that all pending payments have been payed. The returned objects contains the number of unconfirmed payments in the system before the request, and the number of cofirmations made.'
 components:
   schemas:
     Location:
@@ -524,20 +560,44 @@ components:
         name:
           type: string
           maxLength: 50
+          description: Should be sufficient to identify the location
         type:
           type: string
           enum:
-            - CITY
-            - STOP
+            - STOP_POINT
+            - STOP_AREA
             - STATION
+            - CITY
+            - COUNTRY
+        region_name:
+          type: string
+        detailed_name:
+          type: string
         description:
           type: string
-          maxLength: 140
+          description: A worded description of the location
+          maxLength: 240
+        direction:
+          type: string
+          enum:
+            - WESTBOUND
+            - EASTBOUND
+        lon:
+          type: number
+          description: Longitude
+        lat:
+          type: number
+          description: Latitude
+        google_place_id:
+          type: string
+        atco_code:
+          type: string
       required:
         - id
         - name
         - type
-        - description
+        - region_name
+        - detailed_name
     LocationTime:
       type: object
       description: The stops that a vehicle is scheduled to make as part of a trip.
