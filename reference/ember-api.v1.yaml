@@ -539,7 +539,7 @@ paths:
                   - successfully_confirmed
       operationId: get-sumup-confirmations
       description: 'When calling this endpoint, the system will try to confirm with SumUp that all pending payments have been payed. The returned objects contains the number of unconfirmed payments in the system before the request, and the number of cofirmations made.'
-  /v1/vehicles/telematics/:
+  /v1/vehicles/:
     get:
       summary: Get Vehicles Live Info
       tags:
@@ -552,7 +552,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VehicleTelemetryData'
+                  $ref: '#/components/schemas/Vehicle'
       operationId: get-vehicles
       description: ''
     parameters: []
@@ -727,8 +727,8 @@ components:
           $ref: '#/components/schemas/Availability'
         prices:
           $ref: '#/components/schemas/Prices'
-    Vehicle:
-      title: Vehicle
+    VehicleResources:
+      title: Vehicle Resources
       type: object
       x-tags:
         - Models
@@ -754,7 +754,7 @@ components:
         destination:
           $ref: '#/components/schemas/LocationTime'
         vehicle:
-          $ref: '#/components/schemas/Vehicle'
+          $ref: '#/components/schemas/VehicleResources'
       required:
         - id
         - origin
@@ -1132,32 +1132,41 @@ components:
       required:
         - id
         - undo_boarding_trip_id
-    VehicleTelemetryData:
-      title: Vehicle Telemetry Data
+    Vehicle:
+      title: Vehicle
       type: object
       x-tags:
         - Models
       description: ''
       properties:
-        device:
-          type: string
+        id:
+          type: integer
           description: The id of the Capte device
-        read_timestamp:
-          type: string
-          format: date-time
-        postion_type:
-          type: string
-          enum:
-            - Point
-        position_coordinates:
-          type: array
-          items:
-            type: number
+        current_route:
+          type: object
+          required:
+            - trip_id
+            - route_number
+          properties:
+            trip_id:
+              type: number
+            route_number:
+              type: string
+        live_data:
+          type: object
+          properties:
+            last_updated:
+              type: string
+            longitude:
+              type: number
+            latitude:
+              type: number
+          required:
+            - last_updated
+            - longitude
+            - latitude
       required:
-        - device
-        - read_timestamp
-        - postion_type
-        - position_coordinates
+        - id
 tags:
   - name: Models
   - name: Paths
