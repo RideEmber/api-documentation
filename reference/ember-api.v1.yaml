@@ -539,6 +539,23 @@ paths:
                   - successfully_confirmed
       operationId: get-sumup-confirmations
       description: 'When calling this endpoint, the system will try to confirm with SumUp that all pending payments have been payed. The returned objects contains the number of unconfirmed payments in the system before the request, and the number of cofirmations made.'
+  /v1/vehicles/telematics/:
+    get:
+      summary: Get Vehicles Live Info
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleTelemetryData'
+      operationId: get-vehicles
+      description: ''
+    parameters: []
 components:
   schemas:
     Location:
@@ -1115,6 +1132,32 @@ components:
       required:
         - id
         - undo_boarding_trip_id
+    VehicleTelemetryData:
+      title: Vehicle Telemetry Data
+      type: object
+      x-tags:
+        - Models
+      description: ''
+      properties:
+        device:
+          type: string
+          description: The id of the Capte device
+        read_timestamp:
+          type: string
+          format: date-time
+        postion_type:
+          type: string
+          enum:
+            - Point
+        position_coordinates:
+          type: array
+          items:
+            type: number
+      required:
+        - device
+        - read_timestamp
+        - postion_type
+        - position_coordinates
 tags:
   - name: Models
   - name: Paths
