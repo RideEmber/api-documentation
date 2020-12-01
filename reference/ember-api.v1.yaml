@@ -249,8 +249,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Pass'
+        '402':
+          description: Payment Required
       operationId: get-order-by-uid
       description: 'Get the details of an order from a uid, without further authentication. Using a UID without authentication is a deliberate convenience feature that allows for things like sharing order URLs. Order UIDs should be kept private but this endpoint does not expose any personal data so the risk is limited.'
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - succeeded
+          in: query
+          name: expected_status
+          description: 'If the expected value does not match the current value, an error is returned. '
   /v1/trips/:
     get:
       summary: Get Trips
