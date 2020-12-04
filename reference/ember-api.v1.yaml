@@ -566,6 +566,78 @@ paths:
       operationId: get-vehicles
       description: ''
     parameters: []
+  /service-updates/:
+    get:
+      summary: get-updates
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  type:
+                    type: string
+                    enum:
+                      - other
+                      - cancellation
+                      - stop_location_change
+                      - vehicle_change
+                  start_time:
+                    type: string
+                    format: date-time
+                  end_time:
+                    type: string
+                    format: date-time
+                  update_time:
+                    type: string
+                    format: date-time
+                    description: When this message was last updated
+                  short_message:
+                    type: string
+                    maxLength: 160
+                  detailed_message_md:
+                    type: string
+                    description: Markdown format
+                  detailed_message_rendered:
+                    type: string
+                    description: HTML format
+                  internal_notes_md:
+                    type: string
+                    description: Markdown format
+                  internal_notes_rendered:
+                    type: string
+                    description: HTML format
+                  trip_id:
+                    type: integer
+                  location_id:
+                    type: integer
+                required:
+                  - id
+                  - type
+                  - start_time
+                  - end_time
+                  - update_time
+                  - short_message
+                  - detailed_message_md
+                  - detailed_message_rendered
+      operationId: get-service-updates
+      parameters:
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: from
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: to
 components:
   schemas:
     Location:
