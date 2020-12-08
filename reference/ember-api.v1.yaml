@@ -577,55 +577,19 @@ paths:
           content:
             application/json:
               schema:
+                oneOf:
+                  - properties:
+                      result:
+                        $ref: '#/components/schemas/ServiceUpdate'
+                    required:
+                      - result
+                  - properties:
+                      result:
+                        type: 'null'
+                    description: When there are no updates
+                    required:
+                      - result
                 type: object
-                properties:
-                  id:
-                    type: integer
-                  type:
-                    type: string
-                    enum:
-                      - other
-                      - cancellation
-                      - stop_location_change
-                      - vehicle_change
-                  start_time:
-                    type: string
-                    format: date-time
-                  end_time:
-                    type: string
-                    format: date-time
-                  update_time:
-                    type: string
-                    format: date-time
-                    description: When this message was last updated
-                  short_message:
-                    type: string
-                    maxLength: 160
-                  detailed_message_md:
-                    type: string
-                    description: Markdown format
-                  detailed_message_rendered:
-                    type: string
-                    description: HTML format
-                  internal_notes_md:
-                    type: string
-                    description: Markdown format
-                  internal_notes_rendered:
-                    type: string
-                    description: HTML format
-                  trip_id:
-                    type: integer
-                  location_id:
-                    type: integer
-                required:
-                  - id
-                  - type
-                  - start_time
-                  - end_time
-                  - update_time
-                  - short_message
-                  - detailed_message_md
-                  - detailed_message_rendered
       operationId: get-service-updates
       parameters:
         - schema:
@@ -638,6 +602,41 @@ paths:
             format: date-time
           in: query
           name: to
+  /login/:
+    post:
+      summary: Create Login Link
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+      operationId: post-login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                redirect:
+                  type: string
+                  format: uri
+                  description: The user will be routed to this url on successful login
+                voucher:
+                  type: string
+                  description: A voucher code to be applied to this customer
+              required:
+                - email
+      description: 'This endpoint sends a login link the the email address in the body. If there is no customer with this address, one will be created.'
 components:
   schemas:
     Location:
@@ -954,11 +953,22 @@ components:
         creation_date:
           type: string
           format: date-time
+        price:
+          type: integer
+          description: Price in pennies
+        status:
+          type: string
+          enum:
+            - pending_trip
+            - pending_payment
+            - cancelled
       required:
         - origin
         - destination
         - tickets
         - creation_date
+        - price
+        - status
     ReservationRequest:
       title: Reservation Request
       type: object
@@ -1249,6 +1259,59 @@ components:
             - latitude
       required:
         - id
+    ServiceUpdate:
+      title: ServiceUpdate
+      type: object
+      x-tags:
+        - Models
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum:
+            - other
+            - cancellation
+            - stop_location_change
+            - vehicle_change
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+          description: When this message was last updated
+        short_message:
+          type: string
+          maxLength: 160
+        detailed_message_md:
+          type: string
+          description: Markdown format
+        detailed_message_rendered:
+          type: string
+          description: HTML format
+        trip_id:
+          type: integer
+        location_id:
+          type: integer
+        link:
+          type: string
+          description: To be presented in the message summery
+        link_label:
+          type: string
+          description: Required when link is present
+      required:
+        - id
+        - type
+        - start_time
+        - end_time
+        - update_time
+        - short_message
+        - detailed_message_md
+        - detailed_message_rendered
 tags:
   - name: Models
   - name: Paths
