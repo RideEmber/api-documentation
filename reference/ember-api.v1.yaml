@@ -261,6 +261,26 @@ paths:
           in: query
           name: expected_status
           description: 'If the expected value does not match the current value, an error is returned. '
+    put:
+      summary: Put Orders
+      operationId: put-orders
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+      description: 'This unauthenticated endpoint is used to alter an order, primarily for cancellation. It means that any client with an order uid can cencel passes from that order.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pass:
+                  type: array
+                  description: A list of pass codes to be deleted
+                  items:
+                    type: string
   /v1/trips/:
     get:
       summary: Get Trips
@@ -596,12 +616,8 @@ paths:
             type: string
             format: date-time
           in: query
-          name: from
-        - schema:
-            type: string
-            format: date-time
-          in: query
-          name: to
+          name: as_of
+          description: Defaults to now
   /login/:
     post:
       summary: Create Login Link
