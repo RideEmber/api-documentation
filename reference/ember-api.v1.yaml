@@ -650,6 +650,9 @@ paths:
                 voucher:
                   type: string
                   description: A voucher code to be applied to this customer
+                prompt_for_password:
+                  type: boolean
+                  description: Set to true to add a password login. Defaults to false.
               required:
                 - email
       description: 'This endpoint sends a login link the the email address in the body. If there is no customer with this address, one will be created.'
