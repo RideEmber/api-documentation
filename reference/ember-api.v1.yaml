@@ -33,63 +33,55 @@ paths:
                     - id: 10
                       name: Scotland
                       type: COUNTRY
-                      description: null
+                      region_name: Scotland
+                      detailed_name: Scotland
+                      description: A beautiful country with lots of places to visit
                     - id: 9
                       name: Perth (Central Car Park)
                       type: STOP_POINT
-                      description: null
+                      region_name: Perth
+                      detailed_name: Central Car Park
+                      description: Near the centre of Perth, right next to Aldi
                     - id: 11
                       name: Dundee
                       type: CITY
-                      description: null
+                      region_name: Dundee
+                      detailed_name: Dundee
                     - id: 1
                       name: Dundee (Greenmarket)
                       type: STOP_POINT
-                      description: null
+                      region_name: Dundee
+                      detailed_name: Greenmarket
                     - id: 2
                       name: Dundee West (Apollo Way)
                       type: STOP_POINT
-                      description: null
+                      region_name: Dundee West
+                      detailed_name: Apollo Way
                     - id: 12
                       name: Inchture
                       type: CITY
-                      description: null
+                      region_name: Inchture
+                      detailed_name: Inchture
                     - id: 3
                       name: Inchture (Westbound)
                       type: STOP_POINT
-                      description: null
+                      region_name: Inchture
+                      detailed_name: Road End (Westbound)
                     - id: 8
                       name: Inchture (Eastbound)
                       type: STOP_POINT
-                      description: null
+                      region_name: Scotland
+                      detailed_name: Scotland
                     - id: 13
                       name: Edinburgh
                       type: CITY
-                      description: null
+                      region_name: Edinburgh
+                      detailed_name: Edinburgh
                     - id: 4
-                      name: Edinburgh (Blackhall Library)
+                      name: Edinburgh West
                       type: STOP_AREA
-                      description: null
-                    - id: 5
-                      name: Edinburgh (Melville Street)
-                      type: STOP_POINT
-                      description: null
-                    - id: 6
-                      name: Ferrytoll Park and Ride
-                      type: STOP_AREA
-                      description: null
-                    - id: 7
-                      name: Kinross (Park and Ride)
-                      type: STOP_POINT
-                      description: null
-                    - id: 14
-                      name: Perth
-                      type: CITY
-                      description: null
-                    - id: 15
-                      name: Kinross
-                      type: CITY
-                      description: null
+                      region_name: Edinburgh West
+                      detailed_name: Blackhall Library (Eastbound)
           headers: {}
         '400':
           description: Bad Request
@@ -262,6 +254,8 @@ paths:
           name: expected_status
           description: 'If the expected value does not match the current value, an error is returned. '
     put:
+      tags:
+        - Paths
       summary: Put Orders
       operationId: put-orders
       responses:
@@ -540,6 +534,7 @@ paths:
     parameters: []
   /sumup/tokens/:
     get:
+      description: 'Get a SumUp authentication token. Used by driver app to log in to SumUp account without the need for a separate password.'
       summary: Get SumUp Token
       tags:
         - Paths
@@ -572,6 +567,7 @@ paths:
   /v1/vehicles/:
     get:
       summary: Get Vehicles Live Info
+      description: Get live details on each vehicle, including telematics data and it's assigned trips.
       tags:
         - Paths
       responses:
@@ -584,11 +580,11 @@ paths:
                 items:
                   $ref: '#/components/schemas/Vehicle'
       operationId: get-vehicles
-      description: ''
     parameters: []
   /service-updates/:
     get:
-      summary: get-updates
+      summary: Get Service Update
+      description: Get the current service update, if available. Service updates are added for major events (e.g. cancellations) where we want to show a message on the website and perhaps other channels. A maximum of one service update is returned at a time.
       tags:
         - Paths
       responses:
