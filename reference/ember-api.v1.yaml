@@ -263,7 +263,7 @@ paths:
           description: OK
         '401':
           description: Unauthorized
-      description: 'This unauthenticated endpoint is used to alter an order, primarily for cancellation. It means that any client with an order uid can cencel passes from that order.'
+      description: 'This unauthenticated endpoint is used to alter an order, primarily for cancellation. It means that any client with an Order UID can cancel passes from that order.'
       requestBody:
         content:
           application/json:
