@@ -32,63 +32,63 @@ paths:
                   value:
                     - id: 10
                       name: Scotland
-                      type: Country
+                      type: COUNTRY
                       description: null
                     - id: 9
                       name: Perth (Central Car Park)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 11
                       name: Dundee
-                      type: City
+                      type: CITY
                       description: null
                     - id: 1
                       name: Dundee (Greenmarket)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 2
                       name: Dundee West (Apollo Way)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 12
                       name: Inchture
-                      type: City
+                      type: CITY
                       description: null
                     - id: 3
                       name: Inchture (Westbound)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 8
                       name: Inchture (Eastbound)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 13
                       name: Edinburgh
-                      type: City
+                      type: CITY
                       description: null
                     - id: 4
                       name: Edinburgh (Blackhall Library)
-                      type: Stop
+                      type: STOP_AREA
                       description: null
                     - id: 5
                       name: Edinburgh (Melville Street)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 6
                       name: Ferrytoll Park and Ride
-                      type: Stop
+                      type: STOP_AREA
                       description: null
                     - id: 7
                       name: Kinross (Park and Ride)
-                      type: Stop
+                      type: STOP_POINT
                       description: null
                     - id: 14
                       name: Perth
-                      type: City
+                      type: CITY
                       description: null
                     - id: 15
                       name: Kinross
-                      type: City
+                      type: CITY
                       description: null
           headers: {}
         '400':
