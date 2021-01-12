@@ -5,61 +5,6 @@ info:
 servers:
   - url: 'http://localhost:3000/charge'
 paths:
-  /v1/user:
-    post:
-      summary: Create New User
-      operationId: post-user
-      responses:
-        '200':
-          description: User Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                New User Bob Fellow:
-                  value:
-                    id: 12
-                    firstName: Bob
-                    lastName: Fellow
-                    email: bob.fellow@gmail.com
-                    dateOfBirth: '1996-08-24'
-                    emailVerified: false
-                    createDate: '2020-11-18'
-        '400':
-          description: Missing Required Information
-        '409':
-          description: Email Already Taken
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                email:
-                  type: string
-                dateOfBirth:
-                  type: string
-                  format: date
-              required:
-                - firstName
-                - lastName
-                - email
-                - dateOfBirth
-            examples:
-              Create User Bob Fellow:
-                value:
-                  firstName: Bob
-                  lastName: Fellow
-                  email: bob.fellow@gmail.com
-                  dateOfBirth: '1996-08-24'
-        description: 'TODO: Depends on whehter we co-locate the backend with Ember API'
-      description: Create a new user.
-    parameters: []
   /v1/health_check:
     get:
       summary: Your GET endpoint
@@ -115,7 +60,7 @@ paths:
           description: ISO 8601 UTC datetime. Reservations which end before this time
         - schema:
             type: array
-            example: '1, 204, 56'
+            example: '[1, 204, 56]'
           in: query
           name: connector_ids
           description: Reservations which were made for any of the supplied connector ids
@@ -202,7 +147,7 @@ paths:
                   items:
                     type: integer
             examples: {}
-        description: ''
+        description: Parameters of the new Reservation
   '/v1/reservations/{id}':
     parameters:
       - schema:
@@ -221,6 +166,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reservation'
+        '401':
+          description: Unauthorized
         '403':
           description: Forbidden
         '404':
@@ -235,6 +182,8 @@ paths:
       responses:
         '204':
           description: No Content - Reservation was successfully cancelled
+        '401':
+          description: Unauthorized
         '403':
           description: Forbidden
         '404':
@@ -382,7 +331,343 @@ paths:
           application/json:
             schema:
               type: object
-              properties: {}
+              properties:
+                mac_address:
+                  type: string
+                fleet_id:
+                  type: integer
+                  description: The fleet this vehicle should belong to
+                license_plate:
+                  type: string
+                country_code:
+                  type: string
+                length:
+                  type: number
+                width:
+                  type: number
+                height:
+                  type: number
+              required:
+                - mac_address
+                - fleet_id
+  '/v1/vehicles/{id}':
+    parameters:
+      - schema:
+          type: integer
+        name: id
+        in: path
+        required: true
+        description: The vehicle identifier
+    get:
+      summary: Get Vehicle
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-vehicles-id
+      description: Retrieve a Vehicle
+    put:
+      summary: Modify a Vehicle
+      operationId: put-v1-vehicles-id
+      responses:
+        '204':
+          description: No Content - Vehicle updated successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Modify a Vehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                license_plate:
+                  type: string
+                country_code:
+                  type: string
+                length:
+                  type: number
+                width:
+                  type: number
+                height:
+                  type: number
+                mac_address:
+                  type: string
+                fleet_id:
+                  type: integer
+                default_charging_policy:
+                  type: integer
+    delete:
+      summary: Delete a Vehicle
+      operationId: delete-v1-vehicles-id
+      responses:
+        '204':
+          description: No Content - The vehicle was deleted successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Delete a Vehicle
+  '/v1/vehicles/{id}/reservations':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The vehicle identifier
+    get:
+      summary: Get Vehicle Reservations
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-vehicles-id-reservations
+      description: |-
+        Get reservations for this vehicle.
+
+        The response will include all reservations which specifically mention this vehicle, and reservations which mention fleets to which this vehicle belongs.
+      parameters:
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: start_gt
+          description: Reservations starting after this (UTC ISO8601) time
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          description: Reservations starting before this (UTC ISO8601) time
+          name: start_lt
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: end_gt
+          description: Reservations ending after this (UTC ISO8601) time
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: end_lt
+          description: Reservations ending after this (UTC ISO8601) time
+  /v1/fleets:
+    get:
+      summary: List Fleets
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fleet'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-fleets
+      description: List fleets
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: name_icontains
+          description: Name contains this string (case insensitive)
+    post:
+      summary: Create a Fleet
+      operationId: post-v1-fleets
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '409':
+          description: Conflict - e.g. if a fleet with this name already exists
+        '500':
+          description: Internal Server Error
+      description: Create a new Fleet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: |
+                    Name to identify the fleet
+                primary_contact_id:
+                  type: string
+                phone_number:
+                  type: string
+                  description: ITU E.164 format phone number
+  '/v1/fleets/{id}':
+    parameters:
+      - schema:
+          type: number
+        name: id
+        in: path
+        required: true
+        description: The fleet identifier
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fleet'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-fleets-id
+      description: 'Get a Fleet '
+    put:
+      summary: Modify a Fleet
+      operationId: put-v1-fleets-id
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Modify an existing Fleet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                primary_contact_id:
+                  type: integer
+                phone_number:
+                  type: string
+    delete:
+      summary: ''
+      operationId: delete-v1-fleets-id
+      responses:
+        '204':
+          description: No Content - Successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+            application/xml:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Delete an existing fleet
+  '/v1/fleets/{id}/vehicles':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+        description: The fleet identifier
+    get:
+      summary: List all Vehicles in Fleet
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-fleets-id-vehicles
+      description: List all Vehicles in Fleet
 components:
   schemas:
     Account:
@@ -603,11 +888,12 @@ components:
     Connector:
       title: Connector
       type: object
+      description: 'An individual connector, which is attached to a Charge Point and can be plugged into a Vehicle for charging.'
       properties:
         id:
           type: string
         charge_point:
-          $ref: '#/components/schemas/Charge-Point'
+          $ref: '#/components/schemas/ChargePoint'
         parking_bay:
           $ref: '#/components/schemas/ParkingBay'
         connector_standard:
@@ -623,7 +909,6 @@ components:
           type: number
           description: 'The maximum power the connector can supply, in Watts'
           example: 150
-      description: 'An individual connector, which is attached to a Charge Point and can be plugged into a Vehicle for charging.'
     ParkingBay:
       title: ParkingBay
       type: object
