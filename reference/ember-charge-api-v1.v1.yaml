@@ -57,7 +57,7 @@ paths:
                   lastName: Fellow
                   email: bob.fellow@gmail.com
                   dateOfBirth: '1996-08-24'
-        description: Post the necessary fields for the API to create a new user.
+        description: 'TODO: Depends on whehter we co-locate the backend with Ember API'
       description: Create a new user.
     parameters: []
   /v1/health_check:
@@ -159,6 +159,13 @@ paths:
                   id:
                     type: integer
                     description: The id of the created reservation
+        '409':
+          description: |-
+            Conflict - This response will be returned when the reservation can not be made because it would conflict with an existing reservation.
+
+            TODO: Define proper response body
+        '500':
+          description: Internal Server Error
       description: Create a reservation
       requestBody:
         content:
@@ -199,10 +206,11 @@ paths:
   '/v1/reservations/{id}':
     parameters:
       - schema:
-          type: string
+          type: integer
         name: id
         in: path
         required: true
+        description: The unique identifier of the reservation
     get:
       summary: Your GET endpoint
       tags: []
@@ -226,7 +234,7 @@ paths:
       operationId: delete-v1-reservations-id
       responses:
         '204':
-          description: No Content
+          description: No Content - Reservation was successfully cancelled
         '403':
           description: Forbidden
         '404':
@@ -234,6 +242,147 @@ paths:
         '500':
           description: Internal Server Error
       description: Cancels an existing reservation
+    put:
+      summary: Update Reservation
+      operationId: put-v1-reservations-id
+      responses:
+        '204':
+          description: No Content - The reservation was updated successfully
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '409':
+          description: |-
+            Conflict - This response will be returned when the reservation can not be made because it would conflict with an existing reservation.
+
+            TODO: Define proper response body
+        '500':
+          description: Internal Server Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                  description: Start of the reservation. UTC ISO 8601
+                end:
+                  type: string
+                  format: date-time
+                  description: The end of the reservation. UTC ISO 8601
+                vehicle_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                fleet_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                connector_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                charge_point_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+      description: |-
+        Update a reservation
+
+        N.B. 409 response if the reservation has a conflict
+  /v1/vehicles:
+    get:
+      summary: List Vehicles
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-vehicles
+      description: List Vehicles
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: fleet_ids
+          description: Vehicles belonging to ANY of these fleets
+        - schema:
+            type: string
+          in: query
+          name: mac_address
+          description: The vehicle matching this MAC address
+        - schema:
+            type: string
+          in: query
+          name: license_plate
+          description: The Vehicle matching this license plate number
+        - schema:
+            type: string
+          in: query
+          name: country_code
+          description: Vehicles with this country code
+        - schema:
+            type: string
+          in: query
+          name: height_lt
+          description: Vehicles shorter than this (in metres)
+        - schema:
+            type: string
+          in: query
+          name: width_lt
+          description: Vehicles thinner than this (in meters)
+        - schema:
+            type: string
+          in: query
+          name: length_lt
+          description: Vehicles shorter than this (in metres)
+    post:
+      summary: Create a Vehicle
+      operationId: post-v1-vehicles
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: The id of the newly created vehicle
+      description: Create a new vehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
 components:
   schemas:
     Account:
