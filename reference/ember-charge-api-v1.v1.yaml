@@ -3,9 +3,9 @@ info:
   title: ember-charge-api-v1
   version: '1.0'
 servers:
-  - url: 'http://localhost:3000'
+  - url: 'http://localhost:3000/charge'
 paths:
-  /user:
+  /v1/user:
     post:
       summary: Create New User
       operationId: post-user
@@ -59,7 +59,8 @@ paths:
                   dateOfBirth: '1996-08-24'
         description: Post the necessary fields for the API to create a new user.
       description: Create a new user.
-  /health_check:
+    parameters: []
+  /v1/health_check:
     get:
       summary: Your GET endpoint
       tags: []
@@ -76,31 +77,74 @@ paths:
       operationId: get-health_check
       description: 'Retrieve the git commit hash of the version of code currently running in production. Can be used to check a new version has been deployed, and whether the service is up. '
     parameters: []
-  /reservations:
+  /v1/reservations:
     get:
       summary: Your GET endpoint
       tags: []
+      operationId: get-reservations
+      description: Get charge point reservations
+      parameters:
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: start_gt
+          description: ISO 8601 UTC datetime. Reservations which begin after this time
+        - schema:
+            type: string
+          in: query
+          name: idtag
+          description: Either the MAC address or the id tag (TBD)
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: start_lt
+          description: ISO 8601 UTC datetime. Reservations which begin before this time
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: end_gt
+          description: ISO 8601 UTC datetime. Reservations which end after this time
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: end_lt
+          description: ISO 8601 UTC datetime. Reservations which end before this time
+        - schema:
+            type: array
+            example: '1, 204, 56'
+          in: query
+          name: connector_ids
+          description: Reservations which were made for any of the supplied connector ids
+        - schema:
+            type: boolean
+          in: query
+          name: is_cancelled
+          description: Was the given reservation cancelled?
+        - schema:
+            type: array
+          in: query
+          name: fleet_ids
+          description: Reservations which were made for any of the supplied fleet ids.
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                type: object
-              examples: {}
-      operationId: get-reservations
-      description: Get charge point reservations
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: starting_after
-          description: ISO 8601 datetime. Reservations which begin after this time
-        - schema:
-            type: string
-          in: query
-          name: idtag
-          description: Either the MAC address or the id tag (TBD)
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+    parameters: []
 components:
   schemas:
     Account:
@@ -147,38 +191,81 @@ components:
     Reservation:
       title: Reservation
       type: object
+      x-examples:
+        All vehicles in Fleets 1 and 2 can charge at Connector 1:
+          reservation_id: 234
+          start: '2019-08-24T14:15:22Z'
+          end: '2019-08-24T15:15:22Z'
+          initiator_id: 1
+          cancelled_at: null
+          fleet_ids:
+            - 1
+            - 2
+          vehicle_ids: null
+          charge_point_ids: null
+          connector_ids:
+            - 1
+      description: |-
+        A Reservation determines a limited time period where limited set of vehicles can charge at a limited set of chargers.
+
+        All datetimes are in UTC and of ISO8601 format
+
+        Either fleet_ids or vehicle_ids must be supplied
+
+        Either charge_point_ids or connector_ids must be supplied
       properties:
-        id:
-          type: string
+        reservation_id:
+          type: integer
+          description: The unique identifier of a stored resevation
         start:
           type: string
+          format: date-time
+          description: The UTC time at which the reservation begins (ISO8601)
         end:
           type: string
+          format: date-time
+          description: The UTC time at which the reservation ends (ISO8601)
         initiator_id:
-          type: string
+          type: integer
+          description: The identifier of the person who created the reservation
         cancelled_at:
           type:
             - string
             - 'null'
-        fleet_id:
+          format: date-time
+          description: 'If the reservation was cancelled, the UTC time at which it was cancelled (ISO8601). Otherwise, null'
+        fleet_ids:
           type:
             - 'null'
-            - integer
+            - array
+          description: The reservation will allow ALL vehicles in the fleets identified by the supplied ids
+          items:
+            type: integer
         vehicle_ids:
           type:
             - array
             - 'null'
+          description: The reservation will ONLY allow the vehicles identified by the supplied ids
           items:
             type: integer
         charge_point_ids:
           type:
             - array
             - 'null'
+          description: 'The reservation will ONLY allow charging at the specified charge point IDs, at ANY of the connectors on these charge points'
           items:
             type: integer
         connector_ids:
           type:
             - array
             - 'null'
+          description: The reservation will ONLY allow charging at the specified connectors
           items:
             type: integer
+    Fleet:
+      title: Fleet
+      type: object
+      properties:
+        id:
+          type: string
+      description: 'Note: A single organisation can choose to have multiple fleets. For example, to sub-divide their vehicles into HGVs and Buses.'
