@@ -145,6 +145,95 @@ paths:
         '500':
           description: Internal Server Error
     parameters: []
+    post:
+      summary: Create Reservation
+      operationId: post-v1-reservations
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: The id of the created reservation
+      description: Create a reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start:
+                  type: string
+                end:
+                  type: string
+                vehicle_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                fleet_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                charge_point_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+                connector_ids:
+                  type:
+                    - array
+                    - 'null'
+                  items:
+                    type: integer
+            examples: {}
+        description: ''
+  '/v1/reservations/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-v1-reservations-id-vehicles
+      description: Get a Reservation
+    delete:
+      summary: Cancel Reservation
+      operationId: delete-v1-reservations-id
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found - If a reservation with this ID does not exist
+        '500':
+          description: Internal Server Error
+      description: Cancels an existing reservation
 components:
   schemas:
     Account:
@@ -214,9 +303,6 @@ components:
 
         Either charge_point_ids or connector_ids must be supplied
       properties:
-        reservation_id:
-          type: integer
-          description: The unique identifier of a stored resevation
         start:
           type: string
           format: date-time
@@ -262,10 +348,162 @@ components:
           description: The reservation will ONLY allow charging at the specified connectors
           items:
             type: integer
+        id:
+          type: integer
+          description: The unique identifier of the reseration
     Fleet:
       title: Fleet
+      type: object
+      description: |-
+        A logical set of Vehicles.
+
+        Note: A single organisation can choose to have multiple fleets. For example, to sub-divide their vehicles into HGVs and Buses.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the fleet
+        name:
+          type: string
+          description: Name to easily identify the fleet
+        primary_contact:
+          $ref: '#/components/schemas/Person'
+        phone_number:
+          type:
+            - string
+            - 'null'
+          description: Optional phone number in addition to primary contact (e.g. for a head office). ITU E.164 format
+    Vehicle:
+      title: Vehicle
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the vehicle
+        fleet_id:
+          $ref: '#/components/schemas/Fleet'
+        mac_address:
+          type: string
+          description: 'The MAC address of the vehicle (TODO: specify format)'
+        license_plate:
+          type: string
+          description: The license plate number of the vehicle
+        country_code:
+          type: string
+          description: The country the license plate is registered to (ISO 3166-1 alpha-2)
+        default_charging_policy:
+          $ref: '#/components/schemas/ChargingPolicy'
+        length:
+          type:
+            - 'null'
+            - number
+          description: 'The Vehicle''s length, in metres'
+        width:
+          type:
+            - 'null'
+            - number
+          description: |
+            The Vehicle's width, in metres
+        height:
+          type:
+            - 'null'
+            - number
+          description: 'The Vehicle''s height, in metres'
+    ChargingPolicy:
+      title: ChargingPolicy
       type: object
       properties:
         id:
           type: string
-      description: 'Note: A single organisation can choose to have multiple fleets. For example, to sub-divide their vehicles into HGVs and Buses.'
+    Person:
+      title: Person
+      type: object
+      properties:
+        id:
+          type: string
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        surname:
+          type: string
+        phone_number:
+          type:
+            - string
+            - 'null'
+          description: ITU E.164 format (e.g. +44 1234567891)
+        email:
+          type: string
+      description: ''
+    ChargePoint:
+      title: ChargePoint
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the charge point
+        Name:
+          type: string
+          description: Name to easily identify the charge point
+        Site:
+          $ref: '#/components/schemas/Site'
+        what3words:
+          type: string
+          description: 'Location of the site, in what3words'
+      description: A charge point may have multiple connectors (hoses) attached
+    Connector:
+      title: Connector
+      type: object
+      properties:
+        id:
+          type: string
+        charge_point:
+          $ref: '#/components/schemas/Charge-Point'
+        parking_bay:
+          $ref: '#/components/schemas/ParkingBay'
+        connector_standard:
+          type: string
+          enum:
+            - CCS
+            - CHAdeMO
+            - Type 2
+            - Type 1
+          description: 'Type of connector '
+          example: CCS
+        max_power:
+          type: number
+          description: 'The maximum power the connector can supply, in Watts'
+          example: 150
+      description: 'An individual connector, which is attached to a Charge Point and can be plugged into a Vehicle for charging.'
+    ParkingBay:
+      title: ParkingBay
+      type: object
+      description: |-
+        A parking spot, usually used to identify where a vehicle will stand while charging. 
+
+        Note that the maximum dimensions may not refer to the spot itself, but rather the access to the spot. For example, there may be no height restriction at the spot itself but the access road may be inaccessible for vehicles over [3.5]m high - therefore the parking spot has a max_height of 3.5m
+      properties:
+        id:
+          type: string
+        max_length:
+          type: number
+          description: Maximum vehicle length (metres) that can park here
+        max_height:
+          description: Maximum vehicle height (metres) that can park here
+          type: number
+        max_width:
+          description: Maximum vehicle width (metres) that can park here
+          type: number
+    Site:
+      title: Site
+      type: object
+      description: 'A location which may have multiple Charge Points located at it. (e.g. Greenmarket, Dundee)'
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: A name to easily identify the site
+        what3words:
+          type: string
+          description: Location of the site. Preferably the entrance of the site.
