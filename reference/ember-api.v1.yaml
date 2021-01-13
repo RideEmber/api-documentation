@@ -41,7 +41,7 @@ paths:
                       type: STOP_POINT
                       region_name: Perth
                       detailed_name: Central Car Park
-                      description: Near the centre of Perth, right next to Aldi
+                      description: 'Near the centre of Perth, right next to Aldi'
                     - id: 11
                       name: Dundee
                       type: CITY
@@ -534,7 +534,7 @@ paths:
     parameters: []
   /sumup/tokens/:
     get:
-      description: 'Get a SumUp authentication token. Used by driver app to log in to SumUp account without the need for a separate password.'
+      description: Get a SumUp authentication token. Used by driver app to log in to SumUp account without the need for a separate password.
       summary: Get SumUp Token
       tags:
         - Paths
@@ -567,7 +567,7 @@ paths:
   /v1/vehicles/:
     get:
       summary: Get Vehicles Live Info
-      description: Get live details on each vehicle, including telematics data and it's assigned trips.
+      description: "Get live details on each vehicle, including telematics data and it's assigned trips. For Authenticated users - drivers or admins, the endpoint will return extended telematry data."
       tags:
         - Paths
       responses:
@@ -580,11 +580,17 @@ paths:
                 items:
                   $ref: '#/components/schemas/Vehicle'
       operationId: get-vehicles
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: ''
     parameters: []
   /service-updates/:
     get:
       summary: Get Service Update
-      description: Get the current service update, if available. Service updates are added for major events (e.g. cancellations) where we want to show a message on the website and perhaps other channels. A maximum of one service update is returned at a time.
+      description: 'Get the current service update, if available. Service updates are added for major events (e.g. cancellations) where we want to show a message on the website and perhaps other channels. A maximum of one service update is returned at a time.'
       tags:
         - Paths
       responses:
@@ -1248,18 +1254,40 @@ components:
       properties:
         id:
           type: integer
-          description: The id of the Capte device
-        current_route:
+          description: The id of the vehicle
+        plate_number:
+          type: string
+        previous_trip:
           type: object
-          required:
-            - trip_id
-            - route_number
           properties:
-            trip_id:
+            id:
               type: number
             route_number:
               type: string
-        live_data:
+            route:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocationTime'
+          required:
+            - id
+            - route_number
+            - route
+        next_trip:
+          type: object
+          properties:
+            id:
+              type: number
+            route_number:
+              type: string
+            route:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocationTime'
+          required:
+            - id
+            - route_number
+            - route
+        gps:
           type: object
           properties:
             last_updated:
@@ -1268,12 +1296,57 @@ components:
               type: number
             latitude:
               type: number
+            heading:
+              type: number
+            elevation:
+              type: number
+              description: Auth required
+            number_of_satellites:
+              type: number
+              description: Auth required
+            speed:
+              type: number
+              description: Auth required
           required:
             - last_updated
             - longitude
             - latitude
+            - heading
+        vehicle_telematics:
+          type: object
+          description: Auth required
+          properties:
+            charger_status:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            battery_percentage:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            battery_voltage:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            battery_current:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            inside_temperature:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            outside_temperature:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            odometer_reading:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            highest_battery_temp:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+            lowest_battery_temp:
+              $ref: '#/components/schemas/TelemartyDataPoint'
+          required:
+            - charger_status
+            - battery_percentage
+            - battery_voltage
+            - battery_current
+            - inside_temperature
+            - outside_temperature
+            - odometer_reading
+            - highest_battery_temp
+            - lowest_battery_temp
       required:
         - id
+        - plate_number
     ServiceUpdate:
       title: ServiceUpdate
       type: object
@@ -1327,6 +1400,20 @@ components:
         - short_message
         - detailed_message_md
         - detailed_message_rendered
+    TelemartyDataPoint:
+      title: TelemartyDataPoint
+      type: object
+      x-tags:
+        - Models
+      properties:
+        value:
+          type: number
+        as_of:
+          type: string
+          format: date-time
+      required:
+        - value
+        - as_of
 tags:
   - name: Models
   - name: Paths
