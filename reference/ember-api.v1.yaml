@@ -564,7 +564,7 @@ paths:
       description: 'When calling this endpoint, the system will try to confirm with SumUp that all pending payments have been payed. The returned objects contains the number of unconfirmed payments in the system before the request, and the number of cofirmations made.'
   /v1/vehicles/:
     get:
-      summary: Get Vehicles Live Info
+      summary: Get Vehicles
       description: "Get live details on each vehicle, including telematics data and it's assigned trips. For Authenticated users - drivers or admins, the endpoint will return extended telematry data."
       tags:
         - Paths
