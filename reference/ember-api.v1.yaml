@@ -434,9 +434,9 @@ paths:
                             - TripOverBooked
                             - WrongPaymentAmount
                         details:
-                          type:
-                            - object
-                            - string
+                          oneOf:
+                            - type: object
+                            - type: string
                       required:
                         - type
                 required:
@@ -450,9 +450,7 @@ paths:
         '500':
           description: Internal Server Error
       operationId: post-passes
-      description: |-
-        This endpoint allows to update, cancel and create passes, usually by the driver during the trip. The action is determined by the schema of the body as described below.
-        For onboard sales, the driver creates a new pass upon payment confirmation.
+      description: 'This endpoint allows to update, cancel and create passes, usually by the driver during the trip. The action is determined by the schema of the body as described below. For onboard sales, the driver creates a new pass upon payment confirmation.'
       requestBody:
         content:
           application/json:
@@ -947,16 +945,6 @@ components:
         bicycle:
           type: integer
       description: A map of prices for all resources and discounts
-    Discount:
-      type: string
-      title: Discount
-      description: Defines the accepted discounts
-      enum:
-        - UNDER_18
-        - UNDER_5
-        - OVER_65
-      x-tags:
-        - Models
     ReservationResponse:
       title: Reservation Response
       type: object
@@ -1257,6 +1245,33 @@ components:
           description: The id of the vehicle
         plate_number:
           type: string
+        resources:
+          $ref: '#/components/schemas/Availability'
+        gps:
+          type: object
+          properties:
+            last_updated:
+              type: string
+            longitude:
+              type: number
+            latitude:
+              type: number
+            heading:
+              type: number
+            elevation:
+              type: number
+              description: Auth required
+            number_of_satellites:
+              type: number
+              description: Auth required
+            speed:
+              type: number
+              description: Auth required
+          required:
+            - last_updated
+            - longitude
+            - latitude
+            - heading
         previous_trip:
           type: object
           properties:
@@ -1287,53 +1302,28 @@ components:
             - id
             - route_number
             - route
-        gps:
-          type: object
-          properties:
-            last_updated:
-              type: string
-            longitude:
-              type: number
-            latitude:
-              type: number
-            heading:
-              type: number
-            elevation:
-              type: number
-              description: Auth required
-            number_of_satellites:
-              type: number
-              description: Auth required
-            speed:
-              type: number
-              description: Auth required
-          required:
-            - last_updated
-            - longitude
-            - latitude
-            - heading
         vehicle_telematics:
           type: object
           description: Auth required
           properties:
             charger_status:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             battery_percentage:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             battery_voltage:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             battery_current:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             inside_temperature:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             outside_temperature:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             odometer_reading:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             highest_battery_temp:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
             lowest_battery_temp:
-              $ref: '#/components/schemas/TelemartyDataPoint'
+              $ref: '#/components/schemas/TelemetryDataPoint'
           required:
             - charger_status
             - battery_percentage
@@ -1400,8 +1390,8 @@ components:
         - short_message
         - detailed_message_md
         - detailed_message_rendered
-    TelemartyDataPoint:
-      title: TelemartyDataPoint
+    TelemetryDataPoint:
+      title: TelemetryDataPoint
       type: object
       x-tags:
         - Models
