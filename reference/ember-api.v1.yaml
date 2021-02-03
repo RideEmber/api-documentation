@@ -261,8 +261,22 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    enum:
+                      - CashRefundAmountTooHigh
+                      - PaymentCanNotBeConverted
+                      - CashRefundAmountTooLow
+                      - RequestedRefundAmountIsTooHigh
       description: 'This unauthenticated endpoint is used to alter an order, primarily for cancellation. It means that any client with an Order UID can cancel passes from that order.'
       requestBody:
         content:
@@ -275,6 +289,10 @@ paths:
                   description: A list of pass codes to be deleted
                   items:
                     type: string
+                refund:
+                  type: number
+                  minimum: 0
+                  description: The amount of pennies to be refunded to card
   /v1/trips/:
     get:
       summary: Get Trips
@@ -434,9 +452,9 @@ paths:
                             - TripOverBooked
                             - WrongPaymentAmount
                         details:
-                          oneOf:
-                            - type: object
-                            - type: string
+                          type:
+                            - object
+                            - string
                       required:
                         - type
                 required:
@@ -450,7 +468,9 @@ paths:
         '500':
           description: Internal Server Error
       operationId: post-passes
-      description: 'This endpoint allows to update, cancel and create passes, usually by the driver during the trip. The action is determined by the schema of the body as described below. For onboard sales, the driver creates a new pass upon payment confirmation.'
+      description: |-
+        This endpoint allows to update, cancel and create passes, usually by the driver during the trip. The action is determined by the schema of the body as described below.
+        For onboard sales, the driver creates a new pass upon payment confirmation.
       requestBody:
         content:
           application/json:
@@ -530,7 +550,7 @@ paths:
                 - departure
                 - arrival
     parameters: []
-  /sumup/tokens/:
+  /v1/sumup/tokens/:
     get:
       description: Get a SumUp authentication token. Used by driver app to log in to SumUp account without the need for a separate password.
       summary: Get SumUp Token
@@ -540,7 +560,8 @@ paths:
         '200':
           description: Bearer XXXXXXXXX
       operationId: get-sumup-tokens
-  /sumup/confirmations/:
+    parameters: []
+  /v1/sumup/confirmations/:
     get:
       summary: Confirm SumUp Payments
       tags:
@@ -562,9 +583,10 @@ paths:
                   - successfully_confirmed
       operationId: get-sumup-confirmations
       description: 'When calling this endpoint, the system will try to confirm with SumUp that all pending payments have been payed. The returned objects contains the number of unconfirmed payments in the system before the request, and the number of cofirmations made.'
+    parameters: []
   /v1/vehicles/:
     get:
-      summary: Get Vehicles
+      summary: Get Vehicles Live Info
       description: "Get live details on each vehicle, including telematics data and it's assigned trips. For Authenticated users - drivers or admins, the endpoint will return extended telematry data."
       tags:
         - Paths
@@ -585,7 +607,7 @@ paths:
           name: Authorization
           description: ''
     parameters: []
-  /service-updates/:
+  /v1/service-updates/:
     get:
       summary: Get Service Update
       description: 'Get the current service update, if available. Service updates are added for major events (e.g. cancellations) where we want to show a message on the website and perhaps other channels. A maximum of one service update is returned at a time.'
@@ -618,7 +640,8 @@ paths:
           in: query
           name: as_of
           description: Defaults to now
-  /login/:
+    parameters: []
+  /v1/login/:
     post:
       summary: Create Login Link
       tags:
@@ -656,6 +679,85 @@ paths:
               required:
                 - email
       description: 'This endpoint sends a login link the the email address in the body. If there is no customer with this address, one will be created.'
+    parameters: []
+  /v1/refund-options/:
+    get:
+      summary: Get Refund Options
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - description: When type is `order`
+                    properties:
+                      refund_amount:
+                        type: integer
+                        description: 'The total amount of refund, i.e. the current value of the order'
+                      max_cash_refund:
+                        type: integer
+                        description: The maximum amount that can be refunded to card if the order is cancelled
+                    required:
+                      - refund_amount
+                      - max_cash_refund
+                  - properties:
+                      refundable_amount:
+                        type: integer
+                        description: 'The amount of cashable store credit '
+                      refundable_payments:
+                        type: array
+                        description: The original card payment that were converted to store credit
+                        items:
+                          type: object
+                          properties:
+                            payment_id:
+                              type: integer
+                            created_at:
+                              type: string
+                              format: date-time
+                            amount:
+                              type: integer
+                              description: Original trnsaction amount
+                            refunded:
+                              type: integer
+                              description: The amount that was already refunded
+                            net_store_credit:
+                              type: integer
+                              description: The maximum amount that can be refunded from this payment
+                          required:
+                            - payment_id
+                            - created_at
+                            - amount
+                            - refunded
+                            - net_store_credit
+                    required:
+                      - refundable_amount
+                      - refundable_payments
+                type: object
+      operationId: get-refund-options
+      description: "This endpoint returns the amount of cash refund and store credit that can be given to the customer. \nThere are two types of requests: \n 1. Refund options for an order - Returns the amount of cashable refund and non-cashable store credit that can received if the order is cancelled. If a list of passes is provided, only those passes will be regarded as cancelled.\n  2. Refund options for a customer - Returns the total amount a customer can request as refund, i.e. their cashable credit, And a list of payment they can request to refund from.\n\nNote that in both cases an `order_uid` is used as identifier."
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - order
+              - customer
+          in: query
+          name: type
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: order_uid
+          required: true
+        - schema:
+            type: array
+          in: query
+          name: passes
+    parameters: []
 components:
   schemas:
     Location:
@@ -945,6 +1047,16 @@ components:
         bicycle:
           type: integer
       description: A map of prices for all resources and discounts
+    Discount:
+      type: string
+      title: Discount
+      description: Defines the accepted discounts
+      enum:
+        - UNDER_18
+        - UNDER_5
+        - OVER_65
+      x-tags:
+        - Models
     ReservationResponse:
       title: Reservation Response
       type: object
@@ -1245,33 +1357,6 @@ components:
           description: The id of the vehicle
         plate_number:
           type: string
-        resources:
-          $ref: '#/components/schemas/Availability'
-        gps:
-          type: object
-          properties:
-            last_updated:
-              type: string
-            longitude:
-              type: number
-            latitude:
-              type: number
-            heading:
-              type: number
-            elevation:
-              type: number
-              description: Auth required
-            number_of_satellites:
-              type: number
-              description: Auth required
-            speed:
-              type: number
-              description: Auth required
-          required:
-            - last_updated
-            - longitude
-            - latitude
-            - heading
         previous_trip:
           type: object
           properties:
@@ -1302,28 +1387,53 @@ components:
             - id
             - route_number
             - route
+        gps:
+          type: object
+          properties:
+            last_updated:
+              type: string
+            longitude:
+              type: number
+            latitude:
+              type: number
+            heading:
+              type: number
+            elevation:
+              type: number
+              description: Auth required
+            number_of_satellites:
+              type: number
+              description: Auth required
+            speed:
+              type: number
+              description: Auth required
+          required:
+            - last_updated
+            - longitude
+            - latitude
+            - heading
         vehicle_telematics:
           type: object
           description: Auth required
           properties:
             charger_status:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             battery_percentage:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             battery_voltage:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             battery_current:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             inside_temperature:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             outside_temperature:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             odometer_reading:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             highest_battery_temp:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
             lowest_battery_temp:
-              $ref: '#/components/schemas/TelemetryDataPoint'
+              $ref: '#/components/schemas/TelemartyDataPoint'
           required:
             - charger_status
             - battery_percentage
@@ -1390,8 +1500,8 @@ components:
         - short_message
         - detailed_message_md
         - detailed_message_rendered
-    TelemetryDataPoint:
-      title: TelemetryDataPoint
+    TelemartyDataPoint:
+      title: TelemartyDataPoint
       type: object
       x-tags:
         - Models
