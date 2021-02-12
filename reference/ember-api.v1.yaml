@@ -286,13 +286,20 @@ paths:
               properties:
                 pass:
                   type: array
-                  description: A list of pass codes to be deleted
+                  description: 'A list of pass codes to be deleted. If empty, all the passes in the order will be deleted'
                   items:
                     type: string
-                refund:
+                card_refund:
                   type: number
                   minimum: 0
                   description: The amount of pennies to be refunded to card
+                store_credit:
+                  type: number
+                  description: The amount of pennies to be converted to store credit
+                  minimum: 0
+              required:
+                - card_refund
+                - store_credit
   /v1/trips/:
     get:
       summary: Get Trips
@@ -758,6 +765,133 @@ paths:
           in: query
           name: passes
     parameters: []
+  '/v1/orders/{uid}/refund-options':
+    parameters:
+      - schema:
+          type: string
+        name: uid
+        in: path
+        required: true
+    get:
+      summary: Get Refund Options for Order
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refund_amount:
+                    type: integer
+                    description: 'The total amount of refund, i.e. the current value of the order'
+                  max_cash_refund:
+                    type: integer
+                    description: The maximum amount that can be refunded to card if the order is cancelled
+                required:
+                  - refund_amount
+                  - max_cash_refund
+      operationId: get-v1-orders-uid-refund-options
+      description: 'This endpoint returns the amount of cashable refund and non-cashable store credit that can received if the order is cancelled. If a list of passes is provided, only those passes will be regarded as cancelled, otherwise all passes will be cancelled.'
+      parameters:
+        - schema:
+            type: array
+          in: query
+          name: passes
+          description: A list of pass codes to be cancelled
+  /v1/customers/:
+    get:
+      summary: Get Customers
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    email:
+                      type: string
+                    uid:
+                      type: string
+                      format: uuid
+                  required:
+                    - email
+                    - uid
+      operationId: get-v1-customers
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: JWT token
+  '/v1/customers/{uid}/':
+    parameters:
+      - schema:
+          type: string
+        name: uid
+        in: path
+        required: true
+    get:
+      summary: Get Customer Details
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDetails'
+        '401':
+          description: Unauthorized
+      operationId: get-v1-customers-uid
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: JWT token
+    put:
+      summary: Update Customer
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+      operationId: put-v1-customers-uid
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          required: true
+          description: JWT token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                card_refund:
+                  type: integer
+                  description: "Amount to refund to the customer's card from their cashable store credit"
+              required:
+                - card_refund
 components:
   schemas:
     Location:
@@ -1514,6 +1648,51 @@ components:
       required:
         - value
         - as_of
+    CustomerDetails:
+      title: CustomerDetails
+      type: object
+      properties:
+        profile:
+          $ref: '#/components/schemas/Customer'
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderResponse'
+        balance:
+          type: object
+          description: "Balance of the customer's Ember store credit account"
+          properties:
+            total:
+              type: integer
+            non_cashable:
+              type: integer
+            cashable:
+              type: integer
+          required:
+            - total
+      required:
+        - profile
+    OrderResponse:
+      title: Order Response
+      type: object
+      x-tags:
+        - Models
+      description: An order response represents an existing order.
+      properties:
+        uid:
+          type: string
+          format: uuid
+        passes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pass'
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - uid
+        - passes
+        - created_at
 tags:
   - name: Models
   - name: Paths
