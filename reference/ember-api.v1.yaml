@@ -834,6 +834,7 @@ paths:
           name: Authorization
           required: true
           description: JWT token
+      description: This endpoint is for admins only.
   '/v1/customers/{uid}/':
     parameters:
       - schema:
@@ -862,6 +863,7 @@ paths:
           name: Authorization
           required: true
           description: JWT token
+      description: This endpoint is for admins only.
     put:
       summary: Update Customer
       tags:
@@ -892,6 +894,26 @@ paths:
                   description: "Amount to refund to the customer's card from their cashable store credit"
               required:
                 - card_refund
+  /v1/accounts/:
+    get:
+      summary: Get Customer Account
+      tags:
+        - Paths
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerDetails'
+      operationId: get-v1-accounts
+      description: 'This endpoint returns the customers details for the logged in user, similar to `/customers/{uid}/` but available to all users.'
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: Authorization
+          description: JWT token
 components:
   schemas:
     Location:
@@ -1689,10 +1711,36 @@ components:
         created_at:
           type: string
           format: date-time
+        payments:
+          type: array
+          items:
+            type: object
+            properties:
+              amount:
+                type: integer
+              status:
+                type: string
+                enum:
+                  - succeeded
+                  - failed
+                  - pending_confirmation
+              receipt_url:
+                type: string
+              provider:
+                type: string
+                enum:
+                  - stripe
+                  - sumup
+                  - store_credit
+            required:
+              - amount
+              - status
+              - provider
       required:
         - uid
         - passes
         - created_at
+        - payments
 tags:
   - name: Models
   - name: Paths
