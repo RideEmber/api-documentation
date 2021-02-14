@@ -834,6 +834,16 @@ paths:
           name: Authorization
           required: true
           description: JWT token
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: Filter name by string (case insasitive)
+        - schema:
+            type: string
+          in: query
+          name: email
+          description: Filter email by string (case insasitive)
       description: This endpoint is for admins only.
   '/v1/customers/{uid}/':
     parameters:
